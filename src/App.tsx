@@ -11,34 +11,69 @@ import {
 } from './workoutMachine';
 
 const PushUpPyramid = () => {
-  // --- Refs ---
+  // --- Refs (need to declare before useMachine for sound callbacks) ---
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
   const animationFrameRef = useRef<number | null>(null);
   const timerStartRef = useRef<number>(0);
   const timerDurationRef = useRef<number>(0);
+  const lastCountdownSoundRef = useRef<number>(4);
 
-  // --- Audio Stub ---
+  // --- Audio Engine ---
   const initAudio = useCallback(() => {
-    // To be implemented
+    if (!audioCtxRef.current) {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      audioCtxRef.current = new AudioContext();
+    }
+    if (audioCtxRef.current.state === 'suspended') {
+      audioCtxRef.current.resume();
+    }
   }, []);
 
   const playTone = useCallback((freq: number, duration = 0.1, vol = 0.1) => {
-    // To be implemented
+    if (!audioCtxRef.current) return;
+    try {
+      const osc = audioCtxRef.current.createOscillator();
+      const gainNode = audioCtxRef.current.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtxRef.current.currentTime);
+
+      const now = audioCtxRef.current.currentTime;
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(vol, now + 0.02);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      osc.connect(gainNode);
+      gainNode.connect(audioCtxRef.current.destination);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.1);
+    } catch (e) {
+      console.error("Audio error", e);
+    }
   }, []);
 
   // --- Configure machine with sound actions ---
   const configuredMachine = useMemo(() => {
     return workoutMachine.provide({
       actions: {
-        playDown: () => console.log('playDown'),
-        playUp: () => console.log('playUp'),
-        playLastDown: () => console.log('playLastDown'),
-        playLastUp: () => console.log('playLastUp'),
-        playGo: () => console.log('playGo'),
-        playRest: () => console.log('playRest'),
-        playFinish: () => console.log('playFinish'),
+        playDown: () => playTone(440, 0.06, 0.12),        // A4 - short tick
+        playUp: () => playTone(440, 0.15, 0.16),          // A4 - longer
+        playLastDown: () => playTone(880, 0.08, 0.15),    // A5 - octave up, short
+        playLastUp: () => playTone(880, 0.2, 0.18),       // A5 - octave up, longer
+        playGo: () => playTone(880, 0.2, 0.15),           // A5 - bright start
+        playRest: () => {
+          playTone(440, 0.15, 0.1);                       // A4 - "duh"
+          setTimeout(() => playTone(329.63, 0.3, 0.12), 120); // E4 - "doom"
+        },
+        playFinish: () => {
+          playTone(880, 0.15, 0.1);                       // A5
+          setTimeout(() => playTone(1108.73, 0.3, 0.12), 150); // C#6
+        },
       },
     });
-  }, []);
+  }, [playTone]);
 
   const [state, send] = useMachine(configuredMachine);
   const { context } = state;
@@ -75,10 +110,41 @@ const PushUpPyramid = () => {
   const completedVolume = selectCompletedVolume(context);
   const progressPercent = selectProgressPercent(context);
 
-  // --- Wake Lock API (Stub) ---
+  // --- Wake Lock API ---
+  const toggleWakeLock = useCallback(async (shouldLock: boolean) => {
+    if ('wakeLock' in navigator) {
+      try {
+        if (shouldLock && !wakeLockRef.current) {
+          wakeLockRef.current = await navigator.wakeLock.request('screen');
+        } else if (!shouldLock && wakeLockRef.current) {
+          await wakeLockRef.current.release();
+          wakeLockRef.current = null;
+        }
+      } catch (err) {
+        console.error('Wake Lock error:', err);
+      }
+    }
+  }, []);
+
   useEffect(() => {
-    // Wake Lock to be implemented
-  }, [status]);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && status !== 'idle' && status !== 'finished') {
+        toggleWakeLock(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    if (status !== 'idle' && status !== 'finished') toggleWakeLock(true);
+    else toggleWakeLock(false);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      toggleWakeLock(false);
+    };
+  }, [status, toggleWakeLock]);
+
+  // --- Countdown sound helper ---
+  const playCountdownBeep = useCallback(() => {
+    playTone(880, 0.05, 0.1); // A5
+  }, [playTone]);
 
   // --- Smooth animation for countdown and rest timers ---
   const prevStatusRef = useRef<string>('');
@@ -93,6 +159,8 @@ const PushUpPyramid = () => {
     if (status === 'countdown' && prevStatusRef.current !== 'countdown') {
       timerStartRef.current = Date.now();
       timerDurationRef.current = 3000;
+      lastCountdownSoundRef.current = 4;
+      playCountdownBeep();
     }
 
     // Handle rest start
@@ -115,6 +183,11 @@ const PushUpPyramid = () => {
         setSmoothProgress(progress);
         const secondsRemaining = Math.ceil(remaining / 1000);
         setCountdownValue(Math.max(1, secondsRemaining));
+
+        if (secondsRemaining < lastCountdownSoundRef.current && secondsRemaining > 0) {
+          lastCountdownSoundRef.current = secondsRemaining;
+          playCountdownBeep();
+        }
       } else if (status === 'resting') {
         setSmoothProgress(progress);
         setRestTimeLeft(Math.ceil(remaining / 1000));
@@ -138,7 +211,7 @@ const PushUpPyramid = () => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [status, context.pyramidSets, context.currentSetIndex]);
+  }, [status, playCountdownBeep, context.pyramidSets, context.currentSetIndex]);
 
   // --- Event Handlers ---
   const handleMainClick = () => {
