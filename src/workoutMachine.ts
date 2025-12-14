@@ -131,31 +131,15 @@ export const workoutMachine = setup({
     idle: {
       on: {
         START: {
-          target: 'countdown',
+          target: 'active',
           actions: 'resetWorkout',
         },
       },
     },
 
-    countdown: {
-      after: {
-        COUNTDOWN_DELAY: {
-          target: 'working',
-          actions: 'playGo', // Sound when countdown ends and work begins
-        },
-      },
-      on: {
-        PAUSE: 'paused',
-        RESET: {
-          target: 'idle',
-          actions: 'resetWorkout',
-        },
-      },
-    },
-
-    working: {
-      initial: 'start',
-      entry: 'resetForNewSet',
+    // Wrapper state to enable history-based pause/resume
+    active: {
+      initial: 'countdown',
       on: {
         PAUSE: 'paused',
         RESET: {
@@ -164,94 +148,115 @@ export const workoutMachine = setup({
         },
       },
       states: {
-        start: {
+        countdown: {
           after: {
-            INITIAL_DELAY: [
-              {
-                guard: 'isSingleRepSet',
-                target: 'lastDown',
-              },
-              {
-                target: 'down',
-              },
-            ],
+            COUNTDOWN_DELAY: {
+              target: 'working',
+              actions: ['resetForNewSet', 'playGo'], // Reset reps and sound when entering new set
+            },
           },
         },
-        down: {
-          entry: 'playDown',
-          after: {
-            PHASE_DELAY: 'up',
-          },
-        },
-        up: {
-          entry: ['incrementRep', 'playUp'],
-          after: {
-            PHASE_DELAY: [
-              {
-                guard: 'isNextRepLast',
-                target: 'lastDown',
-              },
-              {
-                guard: 'hasMoreReps',
-                target: 'down',
-              },
-              {
-                target: '#workout.setComplete',
-              },
-            ],
-          },
-        },
-        lastDown: {
-          entry: 'playLastDown',
-          after: {
-            PHASE_DELAY: 'lastUp',
-          },
-        },
-        lastUp: {
-          entry: ['incrementRep', 'playLastUp'],
-          after: {
-            PHASE_DELAY: '#workout.setComplete',
-          },
-        },
-      },
-    },
 
-    setComplete: {
-      always: [
-        {
-          guard: 'isWorkoutComplete',
-          target: 'finished',
+        working: {
+          initial: 'start',
+          states: {
+            start: {
+              after: {
+                INITIAL_DELAY: [
+                  {
+                    guard: 'isSingleRepSet',
+                    target: 'lastDown',
+                  },
+                  {
+                    target: 'down',
+                  },
+                ],
+              },
+            },
+            down: {
+              entry: 'playDown',
+              after: {
+                PHASE_DELAY: {
+                  target: 'up',
+                  actions: 'incrementRep', // Increment on transition, not entry
+                },
+              },
+            },
+            up: {
+              entry: 'playUp',
+              after: {
+                PHASE_DELAY: [
+                  {
+                    guard: 'isNextRepLast',
+                    target: 'lastDown',
+                  },
+                  {
+                    guard: 'hasMoreReps',
+                    target: 'down',
+                  },
+                  {
+                    target: '#workout.active.setComplete',
+                  },
+                ],
+              },
+            },
+            lastDown: {
+              entry: 'playLastDown',
+              after: {
+                PHASE_DELAY: {
+                  target: 'lastUp',
+                  actions: 'incrementRep', // Increment on transition, not entry
+                },
+              },
+            },
+            lastUp: {
+              entry: 'playLastUp',
+              after: {
+                PHASE_DELAY: '#workout.active.setComplete',
+              },
+            },
+          },
         },
-        {
-          target: 'resting',
-        },
-      ],
-    },
 
-    resting: {
-      entry: 'playRest', // Sound when rest begins
-      after: {
-        REST_DELAY: {
-          target: 'countdown',
-          actions: 'advanceToNextSet',
+        setComplete: {
+          always: [
+            {
+              guard: 'isWorkoutComplete',
+              target: '#workout.finished',
+            },
+            {
+              target: 'resting',
+            },
+          ],
         },
-      },
-      on: {
-        SKIP_REST: {
-          target: 'countdown',
-          actions: 'advanceToNextSet',
+
+        resting: {
+          entry: 'playRest', // Sound when rest begins
+          after: {
+            REST_DELAY: {
+              target: 'countdown',
+              actions: 'advanceToNextSet',
+            },
+          },
+          on: {
+            SKIP_REST: {
+              target: 'countdown',
+              actions: 'advanceToNextSet',
+            },
+          },
         },
-        PAUSE: 'paused',
-        RESET: {
-          target: 'idle',
-          actions: 'resetWorkout',
+
+        // Deep history pseudo-state to remember position within active
+        hist: {
+          type: 'history',
+          history: 'deep',
         },
       },
     },
 
     paused: {
       on: {
-        RESUME: 'countdown',
+        RESUME: '#workout.active.hist', // Resume to last position via history
         RESET: {
           target: 'idle',
           actions: 'resetWorkout',

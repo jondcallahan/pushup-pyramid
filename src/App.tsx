@@ -87,20 +87,20 @@ const PushUpPyramid = () => {
   // --- Derived State ---
   const status = (() => {
     if (state.matches('idle')) return 'idle';
-    if (state.matches('countdown')) return 'countdown';
-    if (state.matches('working')) return 'working';
-    if (state.matches('resting')) return 'resting';
+    if (state.matches({ active: 'countdown' })) return 'countdown';
+    if (state.matches({ active: 'working' })) return 'working';
+    if (state.matches({ active: 'resting' })) return 'resting';
     if (state.matches('paused')) return 'paused';
     if (state.matches('finished')) return 'finished';
     return 'idle';
   })();
 
   const repPhase = (() => {
-    if (state.matches({ working: 'start' })) return 'start';
-    if (state.matches({ working: 'down' })) return 'down';
-    if (state.matches({ working: 'up' })) return 'up';
-    if (state.matches({ working: 'lastDown' })) return 'lastDown';
-    if (state.matches({ working: 'lastUp' })) return 'lastUp';
+    if (state.matches({ active: { working: 'start' } })) return 'start';
+    if (state.matches({ active: { working: 'down' } })) return 'down';
+    if (state.matches({ active: { working: 'up' } })) return 'up';
+    if (state.matches({ active: { working: 'lastDown' } })) return 'lastDown';
+    if (state.matches({ active: { working: 'lastUp' } })) return 'lastUp';
     return 'start';
   })();
 
