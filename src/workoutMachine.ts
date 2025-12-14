@@ -128,9 +128,9 @@ export const workoutMachine = setup({
     sendPlayRest: sendTo('audioActor', { type: 'PLAY_REST' }),
     sendPlayFinish: sendTo('audioActor', { type: 'PLAY_FINISH' }),
     sendPlayCountdownBeep: sendTo('audioActor', { type: 'PLAY_COUNTDOWN_BEEP' }),
-    syncMuteState: sendTo('audioActor', ({ context }) => ({
-      type: 'SET_MUTED' as const,
-      muted: context.isMuted
+    syncMuteState: sendTo('audioActor', ({ context }) => ({ 
+      type: 'SET_MUTED' as const, 
+      muted: context.isMuted 
     })),
   },
   guards: {
