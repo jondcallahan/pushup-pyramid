@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback, useState, useMemo } from 'react';
 import { useMachine } from '@xstate/react';
 import { Play, Pause, SkipForward, RefreshCw, Volume2, VolumeX, Settings, X, ChevronUp, ChevronDown, Trophy } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import {
   workoutMachine,
   selectCurrentTargetReps,
@@ -8,83 +8,18 @@ import {
   selectTotalVolume,
   selectCompletedVolume,
   selectProgressPercent,
+  selectCountdownSeconds,
+  selectRestSeconds,
 } from './workoutMachine';
 
 const PushUpPyramid = () => {
-  // --- Refs (need to declare before useMachine for sound callbacks) ---
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
-  const timerStartRef = useRef<number>(0);
-  const timerDurationRef = useRef<number>(0);
-  const lastCountdownSoundRef = useRef<number>(4);
-
-  // --- Audio Engine ---
-  const initAudio = useCallback(() => {
-    if (!audioCtxRef.current) {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-      audioCtxRef.current = new AudioContext();
-    }
-    if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
-    }
-  }, []);
-
-  const playTone = useCallback((freq: number, duration = 0.1, vol = 0.1) => {
-    if (!audioCtxRef.current) return;
-    try {
-      const osc = audioCtxRef.current.createOscillator();
-      const gainNode = audioCtxRef.current.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, audioCtxRef.current.currentTime);
-
-      const now = audioCtxRef.current.currentTime;
-      gainNode.gain.setValueAtTime(0, now);
-      gainNode.gain.linearRampToValueAtTime(vol, now + 0.02);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-      osc.connect(gainNode);
-      gainNode.connect(audioCtxRef.current.destination);
-
-      osc.start(now);
-      osc.stop(now + duration + 0.1);
-    } catch (e) {
-      console.error("Audio error", e);
-    }
-  }, []);
-
-  // --- Configure machine with sound actions ---
-  const configuredMachine = useMemo(() => {
-    return workoutMachine.provide({
-      actions: {
-        playDown: () => playTone(440, 0.06, 0.12),        // A4 - short tick
-        playUp: () => playTone(440, 0.15, 0.16),          // A4 - longer
-        playLastDown: () => playTone(880, 0.08, 0.15),    // A5 - octave up, short
-        playLastUp: () => playTone(880, 0.2, 0.18),       // A5 - octave up, longer
-        playGo: () => playTone(880, 0.2, 0.15),           // A5 - bright start
-        playRest: () => {
-          playTone(440, 0.15, 0.1);                       // A4 - "duh"
-          setTimeout(() => playTone(329.63, 0.3, 0.12), 120); // E4 - "doom"
-        },
-        playFinish: () => {
-          playTone(880, 0.15, 0.1);                       // A5
-          setTimeout(() => playTone(1108.73, 0.3, 0.12), 150); // C#6
-        },
-      },
-    });
-  }, [playTone]);
-
-  const [state, send] = useMachine(configuredMachine);
+  const [state, send] = useMachine(workoutMachine);
   const { context } = state;
 
-  // --- Local UI State ---
+  // --- Local UI State (only for modals/settings) ---
   const [showSettings, setShowSettings] = useState(false);
-  const [countdownValue, setCountdownValue] = useState(3);
-  const [restTimeLeft, setRestTimeLeft] = useState(0);
-  const [smoothProgress, setSmoothProgress] = useState(1);
 
-  // --- Derived State ---
+  // --- Derived State from Machine ---
   const status = (() => {
     if (state.matches('idle')) return 'idle';
     if (state.matches({ active: 'countdown' })) return 'countdown';
@@ -104,118 +39,17 @@ const PushUpPyramid = () => {
     return 'start';
   })();
 
+  // All data comes from machine context
   const currentTargetReps = selectCurrentTargetReps(context);
   const nextSetReps = selectNextSetReps(context);
   const totalVolume = selectTotalVolume(context);
   const completedVolume = selectCompletedVolume(context);
   const progressPercent = selectProgressPercent(context);
+  const countdownSeconds = selectCountdownSeconds(context);
+  const restSeconds = selectRestSeconds(context);
 
-  // --- Wake Lock API ---
-  const toggleWakeLock = useCallback(async (shouldLock: boolean) => {
-    if ('wakeLock' in navigator) {
-      try {
-        if (shouldLock && !wakeLockRef.current) {
-          wakeLockRef.current = await navigator.wakeLock.request('screen');
-        } else if (!shouldLock && wakeLockRef.current) {
-          await wakeLockRef.current.release();
-          wakeLockRef.current = null;
-        }
-      } catch (err) {
-        console.error('Wake Lock error:', err);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && status !== 'idle' && status !== 'finished') {
-        toggleWakeLock(true);
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    if (status !== 'idle' && status !== 'finished') toggleWakeLock(true);
-    else toggleWakeLock(false);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      toggleWakeLock(false);
-    };
-  }, [status, toggleWakeLock]);
-
-  // --- Countdown sound helper ---
-  const playCountdownBeep = useCallback(() => {
-    playTone(880, 0.05, 0.1); // A5
-  }, [playTone]);
-
-  // --- Smooth animation for countdown and rest timers ---
-  const prevStatusRef = useRef<string>('');
-
-  useEffect(() => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
-    // Handle countdown start
-    if (status === 'countdown' && prevStatusRef.current !== 'countdown') {
-      timerStartRef.current = Date.now();
-      timerDurationRef.current = 3000;
-      lastCountdownSoundRef.current = 4;
-      playCountdownBeep();
-    }
-
-    // Handle rest start
-    if (status === 'resting' && prevStatusRef.current !== 'resting') {
-      const restDuration = 5 + context.pyramidSets[context.currentSetIndex] * 5;
-      const cappedRest = Math.min(60, restDuration);
-      timerStartRef.current = Date.now();
-      timerDurationRef.current = cappedRest * 1000;
-    }
-
-    // Animation loop for smooth progress
-    const animate = () => {
-      const now = Date.now();
-      const elapsed = now - timerStartRef.current;
-      const duration = timerDurationRef.current;
-      const remaining = Math.max(0, duration - elapsed);
-      const progress = duration > 0 ? remaining / duration : 1;
-
-      if (status === 'countdown') {
-        setSmoothProgress(progress);
-        const secondsRemaining = Math.ceil(remaining / 1000);
-        setCountdownValue(Math.max(1, secondsRemaining));
-
-        if (secondsRemaining < lastCountdownSoundRef.current && secondsRemaining > 0) {
-          lastCountdownSoundRef.current = secondsRemaining;
-          playCountdownBeep();
-        }
-      } else if (status === 'resting') {
-        setSmoothProgress(progress);
-        setRestTimeLeft(Math.ceil(remaining / 1000));
-      }
-
-      if ((status === 'countdown' || status === 'resting') && remaining > 0) {
-        animationFrameRef.current = requestAnimationFrame(animate);
-      }
-    };
-
-    if (status === 'countdown' || status === 'resting') {
-      animationFrameRef.current = requestAnimationFrame(animate);
-    } else {
-      setSmoothProgress(1);
-    }
-
-    prevStatusRef.current = status;
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [status, playCountdownBeep, context.pyramidSets, context.currentSetIndex]);
-
-  // --- Event Handlers ---
+  // --- Event Handlers (just send events to machine) ---
   const handleMainClick = () => {
-    initAudio();
     if (status === 'idle') {
       send({ type: 'START' });
     } else if (status === 'resting') {
@@ -229,35 +63,14 @@ const PushUpPyramid = () => {
     }
   };
 
-  const handleReset = () => {
-    send({ type: 'RESET' });
-  };
+  const handleReset = () => send({ type: 'RESET' });
+  const handleToggleMute = () => send({ type: 'TOGGLE_MUTE' });
+  const handleSetPeak = (peak: number) => send({ type: 'SET_PEAK', peak });
+  const handleSetTempo = (tempoMs: number) => send({ type: 'SET_TEMPO', tempoMs });
+  const handleTogglePause = () => send({ type: status === 'paused' ? 'RESUME' : 'PAUSE' });
+  const handleSkipRest = () => send({ type: 'SKIP_REST' });
 
-  const handleToggleMute = () => {
-    send({ type: 'TOGGLE_MUTE' });
-  };
-
-  const handleSetPeak = (peak: number) => {
-    send({ type: 'SET_PEAK', peak });
-  };
-
-  const handleSetTempo = (tempoMs: number) => {
-    send({ type: 'SET_TEMPO', tempoMs });
-  };
-
-  const handleTogglePause = () => {
-    if (status === 'paused') {
-      send({ type: 'RESUME' });
-    } else {
-      send({ type: 'PAUSE' });
-    }
-  };
-
-  const handleSkipRest = () => {
-    send({ type: 'SKIP_REST' });
-  };
-
-  // --- UI Helpers ---
+  // --- Pure UI Helpers ---
   const getStrokeColorClass = () => {
     if (status === 'paused') return 'text-yellow-500';
     if (status === 'resting') return 'text-blue-500';
@@ -274,7 +87,7 @@ const PushUpPyramid = () => {
 
   const getMainText = () => {
     if (status === 'idle') return <Play size={48} className="ml-2" />;
-    if (status === 'countdown') return <span className="text-6xl font-bold">{countdownValue}</span>;
+    if (status === 'countdown') return <span className="text-6xl font-bold">{countdownSeconds}</span>;
     if (status === 'working') {
       if (repPhase === 'lastDown') return <span className="text-5xl font-black tracking-tighter text-center">LAST<br/>DOWN</span>;
       if (repPhase === 'lastUp') return <span className="text-6xl font-black tracking-tighter">LAST<br/>UP</span>;
@@ -282,7 +95,7 @@ const PushUpPyramid = () => {
       if (repPhase === 'up') return <span className="text-6xl font-black tracking-tighter">UP</span>;
       return <span className="text-6xl font-bold">GO</span>;
     }
-    if (status === 'resting') return <span className="text-6xl font-mono">{restTimeLeft}s</span>;
+    if (status === 'resting') return <span className="text-6xl font-mono">{restSeconds}s</span>;
     if (status === 'paused') return <span className="text-4xl font-bold">PAUSED</span>;
     if (status === 'finished') return <Trophy size={64} className="text-yellow-400 animate-bounce" />;
   };
@@ -303,14 +116,48 @@ const PushUpPyramid = () => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
-  // Use smoothProgress for countdown and resting
-  const circleProgress = (() => {
-    if (status === 'idle' || status === 'finished') return 1;
-    if (status === 'countdown' || status === 'resting') return smoothProgress;
-    return 1;
-  })();
+  // Smooth animated progress using requestAnimationFrame
+  const [smoothProgress, setSmoothProgress] = useState(1);
+  const animationRef = useRef<number | null>(null);
 
-  const strokeDashoffset = circumference - (circleProgress * circumference);
+  useEffect(() => {
+    // Only animate during countdown or resting
+    if (status !== 'countdown' && status !== 'resting') {
+      setSmoothProgress(1);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+      return;
+    }
+
+    const { timerStartedAt, timerDuration } = context;
+    if (!timerStartedAt || !timerDuration) {
+      setSmoothProgress(1);
+      return;
+    }
+
+    const animate = () => {
+      const elapsed = Date.now() - timerStartedAt;
+      const remaining = Math.max(0, timerDuration - elapsed);
+      const progress = remaining / timerDuration;
+      setSmoothProgress(progress);
+
+      if (remaining > 0) {
+        animationRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [status, context.timerStartedAt, context.timerDuration]);
+
+  const strokeDashoffset = circumference - (smoothProgress * circumference);
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans select-none overflow-hidden touch-manipulation relative">
@@ -380,6 +227,7 @@ const PushUpPyramid = () => {
                     ))}
                 </div>
               </div>
+
             </div>
 
             <button
