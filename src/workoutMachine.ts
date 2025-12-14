@@ -128,9 +128,9 @@ export const workoutMachine = setup({
     sendPlayRest: sendTo('audioActor', { type: 'PLAY_REST' }),
     sendPlayFinish: sendTo('audioActor', { type: 'PLAY_FINISH' }),
     sendPlayCountdownBeep: sendTo('audioActor', { type: 'PLAY_COUNTDOWN_BEEP' }),
-    syncMuteState: sendTo('audioActor', ({ context }) => ({ 
-      type: 'SET_MUTED' as const, 
-      muted: context.isMuted 
+    syncMuteState: sendTo('audioActor', ({ context }) => ({
+      type: 'SET_MUTED' as const,
+      muted: context.isMuted
     })),
   },
   guards: {
@@ -175,6 +175,10 @@ export const workoutMachine = setup({
     timerStartedAt: 0,
     timerDuration: 0,
   },
+  // Audio actor at root level - persists across all states to avoid race conditions
+  invoke: [
+    { id: 'audioActor', src: 'audio' },
+  ],
   on: {
     TOGGLE_MUTE: {
       actions: ['toggleMute', 'syncMuteState'],
@@ -208,12 +212,8 @@ export const workoutMachine = setup({
 
     // Active state - wraps all workout activity
     active: {
-      invoke: [
-        // Wake lock - automatically acquired/released with active state
-        { id: 'wakeLock', src: 'wakeLock' },
-        // Audio actor - spawned for the duration of the workout
-        { id: 'audioActor', src: 'audio' },
-      ],
+      // Wake lock - automatically acquired/released with active state
+      invoke: { id: 'wakeLock', src: 'wakeLock' },
       initial: 'countdown',
       on: {
         PAUSE: 'paused',
@@ -357,9 +357,6 @@ export const workoutMachine = setup({
     },
 
     finished: {
-      invoke: [
-        { id: 'audioActor', src: 'audio' },
-      ],
       entry: 'sendPlayFinish',
       on: {
         RESET: {
