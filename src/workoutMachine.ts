@@ -1,4 +1,6 @@
-import { setup, assign } from 'xstate';
+import { setup, assign, sendTo, fromCallback } from 'xstate';
+import { wakeLockActor } from './actors/wakeLock';
+import { audioActor } from './actors/audio';
 
 // --- Types ---
 export interface WorkoutContext {
@@ -8,6 +10,12 @@ export interface WorkoutContext {
   completedRepsInSet: number;
   tempoMs: number;
   isMuted: boolean;
+  // Timer state (owned by machine, not UI)
+  countdownSecondsLeft: number;
+  restSecondsLeft: number;
+  // For smooth UI animation
+  timerStartedAt: number;
+  timerDuration: number;
 }
 
 export type WorkoutEvent =
@@ -18,7 +26,9 @@ export type WorkoutEvent =
   | { type: 'SKIP_REST' }
   | { type: 'SET_PEAK'; peak: number }
   | { type: 'SET_TEMPO'; tempoMs: number }
-  | { type: 'TOGGLE_MUTE' };
+  | { type: 'TOGGLE_MUTE' }
+  | { type: 'COUNTDOWN_TICK' }
+  | { type: 'REST_TICK' };
 
 // --- Helper Functions ---
 export const generatePyramid = (peak: number): number[] => {
@@ -33,11 +43,40 @@ export const calculateRestTime = (reps: number): number => {
   return Math.min(60, calculated) * 1000;
 };
 
+export const calculateRestSeconds = (reps: number): number => {
+  const calculated = 5 + reps * 5;
+  return Math.min(60, calculated);
+};
+
+// --- Ticker Actors (defined inline for simplicity) ---
+const countdownTickerActor = fromCallback(({ sendBack }) => {
+  // First tick after 1 second (entry action already showed "3" and played beep)
+  const interval = setInterval(() => {
+    sendBack({ type: 'COUNTDOWN_TICK' });
+  }, 1000);
+
+  return () => clearInterval(interval);
+});
+
+const restTickerActor = fromCallback(({ sendBack }) => {
+  const interval = setInterval(() => {
+    sendBack({ type: 'REST_TICK' });
+  }, 1000);
+
+  return () => clearInterval(interval);
+});
+
 // --- Machine Setup ---
 export const workoutMachine = setup({
   types: {} as {
     context: WorkoutContext;
     events: WorkoutEvent;
+  },
+  actors: {
+    wakeLock: wakeLockActor,
+    audio: audioActor,
+    countdownTicker: countdownTickerActor,
+    restTicker: restTickerActor,
   },
   actions: {
     resetForNewSet: assign({
@@ -53,31 +92,56 @@ export const workoutMachine = setup({
     resetWorkout: assign({
       currentSetIndex: 0,
       completedRepsInSet: 0,
+      countdownSecondsLeft: 3,
+      restSecondsLeft: 0,
     }),
     toggleMute: assign({
       isMuted: ({ context }) => !context.isMuted,
     }),
-    // Sound actions - these will be overridden by the component
-    playDown: () => {},
-    playUp: () => {},
-    playLastDown: () => {},
-    playLastUp: () => {},
-    playGo: () => {},
-    playRest: () => {},
-    playFinish: () => {},
+    // Countdown timer actions
+    initCountdown: assign({
+      countdownSecondsLeft: 3,
+      timerStartedAt: () => Date.now(),
+      timerDuration: 3000,
+    }),
+    decrementCountdown: assign({
+      countdownSecondsLeft: ({ context }) => Math.max(0, context.countdownSecondsLeft - 1),
+    }),
+    // Rest timer actions
+    initRest: assign(({ context }) => {
+      const duration = calculateRestSeconds(context.pyramidSets[context.currentSetIndex]);
+      return {
+        restSecondsLeft: duration,
+        timerStartedAt: Date.now(),
+        timerDuration: duration * 1000,
+      };
+    }),
+    decrementRest: assign({
+      restSecondsLeft: ({ context }) => Math.max(0, context.restSecondsLeft - 1),
+    }),
+    // Audio actions - send to spawned audio actor
+    sendPlayDown: sendTo('audioActor', { type: 'PLAY_DOWN' }),
+    sendPlayUp: sendTo('audioActor', { type: 'PLAY_UP' }),
+    sendPlayLastDown: sendTo('audioActor', { type: 'PLAY_LAST_DOWN' }),
+    sendPlayLastUp: sendTo('audioActor', { type: 'PLAY_LAST_UP' }),
+    sendPlayGo: sendTo('audioActor', { type: 'PLAY_GO' }),
+    sendPlayRest: sendTo('audioActor', { type: 'PLAY_REST' }),
+    sendPlayFinish: sendTo('audioActor', { type: 'PLAY_FINISH' }),
+    sendPlayCountdownBeep: sendTo('audioActor', { type: 'PLAY_COUNTDOWN_BEEP' }),
+    syncMuteState: sendTo('audioActor', ({ context }) => ({
+      type: 'SET_MUTED' as const,
+      muted: context.isMuted
+    })),
   },
   guards: {
     hasMoreReps: ({ context }) => {
       const target = context.pyramidSets[context.currentSetIndex];
       return context.completedRepsInSet < target;
     },
-    // Check if the NEXT down will be the last rep (after current up increments)
     isNextRepLast: ({ context }) => {
       const target = context.pyramidSets[context.currentSetIndex];
-      // After incrementing in UP, completedRepsInSet will equal target-1 for the last rep
       return context.completedRepsInSet === target - 1;
     },
-    // Check if this is a single-rep set (starts as last rep)
     isSingleRepSet: ({ context }) => {
       const target = context.pyramidSets[context.currentSetIndex];
       return target === 1;
@@ -88,9 +152,10 @@ export const workoutMachine = setup({
     isWorkoutComplete: ({ context }) => {
       return context.currentSetIndex >= context.pyramidSets.length - 1;
     },
+    countdownComplete: ({ context }) => context.countdownSecondsLeft <= 0,
+    restComplete: ({ context }) => context.restSecondsLeft <= 0,
   },
   delays: {
-    COUNTDOWN_DELAY: 3000,
     REST_DELAY: ({ context }) => calculateRestTime(context.pyramidSets[context.currentSetIndex]),
     PHASE_DELAY: ({ context }) => context.tempoMs / 2,
     INITIAL_DELAY: 600,
@@ -105,10 +170,14 @@ export const workoutMachine = setup({
     completedRepsInSet: 0,
     tempoMs: 2000,
     isMuted: false,
+    countdownSecondsLeft: 3,
+    restSecondsLeft: 0,
+    timerStartedAt: 0,
+    timerDuration: 0,
   },
   on: {
     TOGGLE_MUTE: {
-      actions: 'toggleMute',
+      actions: ['toggleMute', 'syncMuteState'],
     },
     SET_PEAK: {
       target: '.idle',
@@ -137,8 +206,14 @@ export const workoutMachine = setup({
       },
     },
 
-    // Wrapper state to enable history-based pause/resume
+    // Active state - wraps all workout activity
     active: {
+      invoke: [
+        // Wake lock - automatically acquired/released with active state
+        { id: 'wakeLock', src: 'wakeLock' },
+        // Audio actor - spawned for the duration of the workout
+        { id: 'audioActor', src: 'audio' },
+      ],
       initial: 'countdown',
       on: {
         PAUSE: 'paused',
@@ -149,11 +224,21 @@ export const workoutMachine = setup({
       },
       states: {
         countdown: {
-          after: {
-            COUNTDOWN_DELAY: {
-              target: 'working',
-              actions: ['resetForNewSet', 'playGo'], // Reset reps and sound when entering new set
-            },
+          entry: ['initCountdown', 'sendPlayCountdownBeep'],
+          invoke: {
+            src: 'countdownTicker',
+          },
+          on: {
+            COUNTDOWN_TICK: [
+              {
+                guard: 'countdownComplete',
+                target: 'working',
+                actions: ['resetForNewSet', 'sendPlayGo'],
+              },
+              {
+                actions: ['decrementCountdown', 'sendPlayCountdownBeep'],
+              },
+            ],
           },
         },
 
@@ -174,16 +259,16 @@ export const workoutMachine = setup({
               },
             },
             down: {
-              entry: 'playDown',
+              entry: 'sendPlayDown',
               after: {
                 PHASE_DELAY: {
                   target: 'up',
-                  actions: 'incrementRep', // Increment on transition, not entry
+                  actions: 'incrementRep',
                 },
               },
             },
             up: {
-              entry: 'playUp',
+              entry: 'sendPlayUp',
               after: {
                 PHASE_DELAY: [
                   {
@@ -201,16 +286,16 @@ export const workoutMachine = setup({
               },
             },
             lastDown: {
-              entry: 'playLastDown',
+              entry: 'sendPlayLastDown',
               after: {
                 PHASE_DELAY: {
                   target: 'lastUp',
-                  actions: 'incrementRep', // Increment on transition, not entry
+                  actions: 'incrementRep',
                 },
               },
             },
             lastUp: {
-              entry: 'playLastUp',
+              entry: 'sendPlayLastUp',
               after: {
                 PHASE_DELAY: '#workout.active.setComplete',
               },
@@ -231,14 +316,21 @@ export const workoutMachine = setup({
         },
 
         resting: {
-          entry: 'playRest', // Sound when rest begins
-          after: {
-            REST_DELAY: {
-              target: 'countdown',
-              actions: 'advanceToNextSet',
-            },
+          entry: ['initRest', 'sendPlayRest'],
+          invoke: {
+            src: 'restTicker',
           },
           on: {
+            REST_TICK: [
+              {
+                guard: 'restComplete',
+                target: 'countdown',
+                actions: 'advanceToNextSet',
+              },
+              {
+                actions: 'decrementRest',
+              },
+            ],
             SKIP_REST: {
               target: 'countdown',
               actions: 'advanceToNextSet',
@@ -256,7 +348,7 @@ export const workoutMachine = setup({
 
     paused: {
       on: {
-        RESUME: '#workout.active.hist', // Resume to last position via history
+        RESUME: '#workout.active.hist',
         RESET: {
           target: 'idle',
           actions: 'resetWorkout',
@@ -265,7 +357,10 @@ export const workoutMachine = setup({
     },
 
     finished: {
-      entry: 'playFinish', // Sound when workout complete
+      invoke: [
+        { id: 'audioActor', src: 'audio' },
+      ],
+      entry: 'sendPlayFinish',
       on: {
         RESET: {
           target: 'idle',
@@ -290,13 +385,20 @@ export const selectTotalVolume = (context: WorkoutContext): number => {
 };
 
 export const selectCompletedVolume = (context: WorkoutContext): number => {
-  // Sum of all completed sets
   const completedSets = context.pyramidSets.slice(0, context.currentSetIndex);
   const completedSetsVolume = completedSets.reduce((a, b) => a + b, 0);
-  // Plus reps done in current set
   return completedSetsVolume + context.completedRepsInSet;
 };
 
 export const selectProgressPercent = (context: WorkoutContext): number => {
   return (context.currentSetIndex / context.pyramidSets.length) * 100;
+};
+
+// New selectors for timer state
+export const selectCountdownSeconds = (context: WorkoutContext): number => {
+  return context.countdownSecondsLeft;
+};
+
+export const selectRestSeconds = (context: WorkoutContext): number => {
+  return context.restSecondsLeft;
 };
