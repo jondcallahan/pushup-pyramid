@@ -176,11 +176,14 @@ export const workoutMachine = setup({
             down: {
               entry: 'playDown',
               after: {
-                PHASE_DELAY: 'up',
+                PHASE_DELAY: {
+                  target: 'up',
+                  actions: 'incrementRep', // Increment on transition, not entry
+                },
               },
             },
             up: {
-              entry: ['incrementRep', 'playUp'],
+              entry: 'playUp',
               after: {
                 PHASE_DELAY: [
                   {
@@ -200,11 +203,14 @@ export const workoutMachine = setup({
             lastDown: {
               entry: 'playLastDown',
               after: {
-                PHASE_DELAY: 'lastUp',
+                PHASE_DELAY: {
+                  target: 'lastUp',
+                  actions: 'incrementRep', // Increment on transition, not entry
+                },
               },
             },
             lastUp: {
-              entry: ['incrementRep', 'playLastUp'],
+              entry: 'playLastUp',
               after: {
                 PHASE_DELAY: '#workout.active.setComplete',
               },
