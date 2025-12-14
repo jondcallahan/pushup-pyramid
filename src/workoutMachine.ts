@@ -152,14 +152,13 @@ export const workoutMachine = setup({
           after: {
             COUNTDOWN_DELAY: {
               target: 'working',
-              actions: 'playGo', // Sound when countdown ends and work begins
+              actions: ['resetForNewSet', 'playGo'], // Reset reps and sound when entering new set
             },
           },
         },
 
         working: {
           initial: 'start',
-          entry: 'resetForNewSet',
           states: {
             start: {
               after: {
