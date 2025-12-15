@@ -10,6 +10,7 @@ import {
   selectProgressPercent,
   selectCountdownSeconds,
   selectRestSeconds,
+  selectStateMeta,
 } from './workoutMachine';
 
 const PushUpPyramid = () => {
@@ -30,20 +31,15 @@ const PushUpPyramid = () => {
     return 'idle';
   })();
 
-  const repPhase = (() => {
-    if (state.hasTag('phase-start')) return 'start';
-    if (state.hasTag('phase-down')) return 'down';
-    if (state.hasTag('phase-up')) return 'up';
-    if (state.hasTag('phase-lastDown')) return 'lastDown';
-    if (state.hasTag('phase-lastUp')) return 'lastUp';
-    return 'start';
-  })();
+  // repPhase no longer needed - meta handles this directly
 
   // Capability-based flags from tags
   const canPause = state.hasTag('pauseable');
   const canSkip = state.hasTag('skippable');
   const canConfigure = state.hasTag('configurable');
-  const showTimer = state.hasTag('timer');
+
+  // UI configuration from state meta
+  const stateMeta = selectStateMeta(state);
 
   // All data comes from machine context
   const currentTargetReps = selectCurrentTargetReps(context);
@@ -76,44 +72,40 @@ const PushUpPyramid = () => {
   const handleTogglePause = () => send({ type: status === 'paused' ? 'RESUME' : 'PAUSE' });
   const handleSkipRest = () => send({ type: 'SKIP_REST' });
 
-  // --- Pure UI Helpers ---
-  const getStrokeColorClass = () => {
-    if (status === 'paused') return 'text-yellow-500';
-    if (status === 'resting') return 'text-blue-500';
-    if (status === 'countdown') return 'text-sky-400';
-    if (status === 'working') {
-      if (repPhase === 'lastDown') return 'text-red-500';
-      if (repPhase === 'lastUp') return 'text-teal-500';
-      if (repPhase === 'down') return 'text-orange-500';
-      return 'text-green-500';
-    }
-    if (status === 'finished') return 'text-purple-500';
-    return 'text-slate-600';
-  };
+  // --- Meta-driven UI Helpers ---
+  const strokeColorClass = stateMeta.strokeColor;
 
-  const getMainText = () => {
-    if (status === 'idle') return <Play size={48} className="ml-2" />;
-    if (status === 'countdown') return <span className="text-6xl font-bold">{countdownSeconds}</span>;
-    if (status === 'working') {
-      if (repPhase === 'lastDown') return <span className="text-5xl font-black tracking-tighter text-center">LAST<br/>DOWN</span>;
-      if (repPhase === 'lastUp') return <span className="text-6xl font-black tracking-tighter">LAST<br/>UP</span>;
-      if (repPhase === 'down') return <span className="text-6xl font-black tracking-tighter">DOWN</span>;
-      if (repPhase === 'up') return <span className="text-6xl font-black tracking-tighter">UP</span>;
-      return <span className="text-6xl font-bold">GO</span>;
+  const renderMainContent = () => {
+    const { mainContent } = stateMeta;
+    switch (mainContent.type) {
+      case 'icon':
+        return <Play size={48} className="ml-2" />;
+      case 'countdown':
+        return <span className="text-6xl font-bold">{countdownSeconds}</span>;
+      case 'rest':
+        return <span className="text-6xl font-mono">{restSeconds}s</span>;
+      case 'trophy':
+        return <Trophy size={64} className="text-yellow-400 animate-bounce" />;
+      case 'text': {
+        const lines = mainContent.text.split('\n');
+        const className = mainContent.className || 'text-6xl';
+        return (
+          <span className={`${className} font-black tracking-tighter text-center`}>
+            {lines.map((line, i) => (
+              <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
+            ))}
+          </span>
+        );
+      }
     }
-    if (status === 'resting') return <span className="text-6xl font-mono">{restSeconds}s</span>;
-    if (status === 'paused') return <span className="text-4xl font-bold">PAUSED</span>;
-    if (status === 'finished') return <Trophy size={64} className="text-yellow-400 animate-bounce" />;
   };
 
   const getSubText = () => {
-    if (status === 'idle') return "Tap to Start";
-    if (status === 'countdown') return "Get Ready";
-    if (status === 'working') return `${context.completedRepsInSet} / ${currentTargetReps} Reps`;
-    if (status === 'resting') return "Resting... Tap to Skip";
-    if (status === 'paused') return "Tap to Resume";
-    if (status === 'finished') return "Great Job!";
-    return "";
+    // For working states, show rep progress instead of static text
+    if (stateMeta.subText === 'reps') {
+      return `${context.completedRepsInSet} / ${currentTargetReps} Reps`;
+    }
+    return stateMeta.subText;
   };
 
   // SVG Config
@@ -325,7 +317,7 @@ const PushUpPyramid = () => {
                />
                <circle
                  stroke="currentColor"
-                 className={`${getStrokeColorClass()} transition-colors duration-300`}
+                 className={`${strokeColorClass} transition-colors duration-300`}
                  strokeWidth={strokeWidth}
                  fill={status === 'idle' ? 'transparent' : '#1e293b'}
                  r={radius}
@@ -339,8 +331,8 @@ const PushUpPyramid = () => {
 
              {/* Inner Content */}
              <div className="z-10 flex flex-col items-center justify-center">
-               <div className={`${getStrokeColorClass()} transition-colors duration-200`}>
-                 {getMainText()}
+               <div className={`${strokeColorClass} transition-colors duration-200`}>
+                 {renderMainContent()}
                </div>
                <div className="mt-2 text-sm font-medium text-slate-400 opacity-80 uppercase tracking-widest">
                  {getSubText()}
