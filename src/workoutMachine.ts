@@ -3,6 +3,21 @@ import { wakeLockActor } from './actors/wakeLock';
 import { audioActor } from './actors/audio';
 
 // --- Types ---
+
+// Meta types for UI configuration
+export type MainContentType =
+  | { type: 'icon'; icon: 'play' }
+  | { type: 'text'; text: string; className?: string }
+  | { type: 'countdown' }
+  | { type: 'rest' }
+  | { type: 'trophy' };
+
+export interface StateMeta {
+  strokeColor: string;
+  mainContent: MainContentType;
+  subText: string;
+}
+
 export interface WorkoutContext {
   peakReps: number;
   pyramidSets: number[];
@@ -203,6 +218,11 @@ export const workoutMachine = setup({
   states: {
     idle: {
       tags: ['idle', 'configurable'],
+      meta: {
+        strokeColor: 'text-slate-600',
+        mainContent: { type: 'icon', icon: 'play' },
+        subText: 'Tap to Start',
+      },
       on: {
         START: {
           target: 'active',
@@ -227,6 +247,11 @@ export const workoutMachine = setup({
       states: {
         countdown: {
           tags: ['countdown', 'pauseable', 'timer'],
+          meta: {
+            strokeColor: 'text-sky-400',
+            mainContent: { type: 'countdown' },
+            subText: 'Get Ready',
+          },
           entry: ['initCountdown', 'sendPlayCountdownBeep'],
           invoke: {
             src: 'countdownTicker',
@@ -251,6 +276,11 @@ export const workoutMachine = setup({
           states: {
             start: {
               tags: ['phase-start'],
+              meta: {
+                strokeColor: 'text-green-500',
+                mainContent: { type: 'text', text: 'GO' },
+                subText: 'reps',
+              },
               after: {
                 INITIAL_DELAY: [
                   {
@@ -265,6 +295,11 @@ export const workoutMachine = setup({
             },
             down: {
               tags: ['phase-down'],
+              meta: {
+                strokeColor: 'text-orange-500',
+                mainContent: { type: 'text', text: 'DOWN' },
+                subText: 'reps',
+              },
               entry: 'sendPlayDown',
               after: {
                 PHASE_DELAY: {
@@ -275,6 +310,11 @@ export const workoutMachine = setup({
             },
             up: {
               tags: ['phase-up'],
+              meta: {
+                strokeColor: 'text-green-500',
+                mainContent: { type: 'text', text: 'UP' },
+                subText: 'reps',
+              },
               entry: 'sendPlayUp',
               after: {
                 PHASE_DELAY: [
@@ -294,6 +334,11 @@ export const workoutMachine = setup({
             },
             lastDown: {
               tags: ['phase-lastDown'],
+              meta: {
+                strokeColor: 'text-red-500',
+                mainContent: { type: 'text', text: 'LAST\nDOWN', className: 'text-5xl' },
+                subText: 'reps',
+              },
               entry: 'sendPlayLastDown',
               after: {
                 PHASE_DELAY: {
@@ -304,6 +349,11 @@ export const workoutMachine = setup({
             },
             lastUp: {
               tags: ['phase-lastUp'],
+              meta: {
+                strokeColor: 'text-teal-500',
+                mainContent: { type: 'text', text: 'LAST\nUP', className: 'text-6xl' },
+                subText: 'reps',
+              },
               entry: 'sendPlayLastUp',
               after: {
                 PHASE_DELAY: '#workout.active.setComplete',
@@ -326,6 +376,11 @@ export const workoutMachine = setup({
 
         resting: {
           tags: ['resting', 'skippable', 'timer'],
+          meta: {
+            strokeColor: 'text-blue-500',
+            mainContent: { type: 'rest' },
+            subText: 'Resting... Tap to Skip',
+          },
           entry: ['initRest', 'sendPlayRest'],
           invoke: {
             src: 'restTicker',
@@ -358,6 +413,11 @@ export const workoutMachine = setup({
 
     paused: {
       tags: ['paused', 'configurable'],
+      meta: {
+        strokeColor: 'text-yellow-500',
+        mainContent: { type: 'text', text: 'PAUSED', className: 'text-4xl' },
+        subText: 'Tap to Resume',
+      },
       on: {
         RESUME: '#workout.active.hist',
         RESET: {
@@ -369,6 +429,11 @@ export const workoutMachine = setup({
 
     finished: {
       tags: ['finished', 'configurable'],
+      meta: {
+        strokeColor: 'text-purple-500',
+        mainContent: { type: 'trophy' },
+        subText: 'Great Job!',
+      },
       entry: 'sendPlayFinish',
       on: {
         RESET: {
@@ -410,4 +475,22 @@ export const selectCountdownSeconds = (context: WorkoutContext): number => {
 
 export const selectRestSeconds = (context: WorkoutContext): number => {
   return context.restSecondsLeft;
+};
+
+// Helper to extract meta from current state(s)
+// XState stores meta keyed by state node id, we collect all active state metas
+export const selectStateMeta = (state: { getMeta: () => Record<string, unknown> }): StateMeta => {
+  const defaultMeta: StateMeta = {
+    strokeColor: 'text-slate-600',
+    mainContent: { type: 'icon', icon: 'play' },
+    subText: '',
+  };
+  
+  // Get all meta objects from active states (most specific wins)
+  const meta = state.getMeta();
+  const metas = Object.values(meta).filter(Boolean) as StateMeta[];
+  if (metas.length === 0) return defaultMeta;
+  
+  // Return the last (most specific/deepest) meta
+  return metas[metas.length - 1];
 };
