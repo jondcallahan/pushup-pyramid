@@ -35,9 +35,9 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     return ctx;
   };
 
-  const playTone = (freq: number, duration = 0.1, volume = 0.1) => {
+  const playTone = (freq: number, duration = 0.1, volume = 0.3) => {
     if (isMuted) return;
-    
+
     const audioCtx = ensureContext();
     if (!audioCtx) return;
 
@@ -69,39 +69,39 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         isMuted = event.muted;
         break;
       case 'PLAY_TONE':
-        playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.1);
+        playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
         break;
       case 'PLAY_DOWN':
-        playTone(440, 0.06, 0.12); // A4 - short tick
+        playTone(440, 0.06, 0.4); // A4 - short tick
         break;
       case 'PLAY_UP':
-        playTone(440, 0.15, 0.16); // A4 - longer
+        playTone(440, 0.15, 0.5); // A4 - longer
         break;
       case 'PLAY_LAST_DOWN':
         // Octave Power chord - punchy with resonance
-        playTone(220, 0.25, 0.08);    // A3 - low root
-        playTone(440, 0.25, 0.08);    // A4 - octave
-        playTone(659.25, 0.25, 0.06); // E5 - fifth
+        playTone(220, 0.25, 0.25);    // A3 - low root
+        playTone(440, 0.25, 0.25);    // A4 - octave
+        playTone(659.25, 0.25, 0.2); // E5 - fifth
         break;
       case 'PLAY_LAST_UP':
         // Octave Power chord - full resonance
-        playTone(220, 0.4, 0.10);     // A3 - low root
-        playTone(440, 0.4, 0.10);     // A4 - octave
-        playTone(659.25, 0.4, 0.08);  // E5 - fifth
+        playTone(220, 0.4, 0.3);     // A3 - low root
+        playTone(440, 0.4, 0.3);     // A4 - octave
+        playTone(659.25, 0.4, 0.25);  // E5 - fifth
         break;
       case 'PLAY_GO':
-        playTone(880, 0.2, 0.15); // A5 - bright start
+        playTone(880, 0.2, 0.45); // A5 - bright start
         break;
       case 'PLAY_REST':
-        playTone(440, 0.15, 0.1); // A4 - "duh"
-        setTimeout(() => playTone(329.63, 0.3, 0.12), 120); // E4 - "doom"
+        playTone(440, 0.15, 0.3); // A4 - "duh"
+        setTimeout(() => playTone(329.63, 0.3, 0.4), 120); // E4 - "doom"
         break;
       case 'PLAY_FINISH':
-        playTone(880, 0.15, 0.1); // A5
-        setTimeout(() => playTone(1108.73, 0.3, 0.12), 150); // C#6
+        playTone(880, 0.15, 0.3); // A5
+        setTimeout(() => playTone(1108.73, 0.3, 0.4), 150); // C#6
         break;
       case 'PLAY_COUNTDOWN_BEEP':
-        playTone(880, 0.05, 0.1); // A5
+        playTone(880, 0.05, 0.3); // A5
         break;
     }
   });
