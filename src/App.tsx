@@ -19,25 +19,31 @@ const PushUpPyramid = () => {
   // --- Local UI State (only for modals/settings) ---
   const [showSettings, setShowSettings] = useState(false);
 
-  // --- Derived State from Machine ---
+  // --- Derived State from Machine (using tags) ---
   const status = (() => {
-    if (state.matches('idle')) return 'idle';
-    if (state.matches({ active: 'countdown' })) return 'countdown';
-    if (state.matches({ active: 'working' })) return 'working';
-    if (state.matches({ active: 'resting' })) return 'resting';
-    if (state.matches('paused')) return 'paused';
-    if (state.matches('finished')) return 'finished';
+    if (state.hasTag('idle')) return 'idle';
+    if (state.hasTag('countdown')) return 'countdown';
+    if (state.hasTag('working')) return 'working';
+    if (state.hasTag('resting')) return 'resting';
+    if (state.hasTag('paused')) return 'paused';
+    if (state.hasTag('finished')) return 'finished';
     return 'idle';
   })();
 
   const repPhase = (() => {
-    if (state.matches({ active: { working: 'start' } })) return 'start';
-    if (state.matches({ active: { working: 'down' } })) return 'down';
-    if (state.matches({ active: { working: 'up' } })) return 'up';
-    if (state.matches({ active: { working: 'lastDown' } })) return 'lastDown';
-    if (state.matches({ active: { working: 'lastUp' } })) return 'lastUp';
+    if (state.hasTag('phase-start')) return 'start';
+    if (state.hasTag('phase-down')) return 'down';
+    if (state.hasTag('phase-up')) return 'up';
+    if (state.hasTag('phase-lastDown')) return 'lastDown';
+    if (state.hasTag('phase-lastUp')) return 'lastUp';
     return 'start';
   })();
+
+  // Capability-based flags from tags
+  const canPause = state.hasTag('pauseable');
+  const canSkip = state.hasTag('skippable');
+  const canConfigure = state.hasTag('configurable');
+  const showTimer = state.hasTag('timer');
 
   // All data comes from machine context
   const currentTargetReps = selectCurrentTargetReps(context);
@@ -250,7 +256,7 @@ const PushUpPyramid = () => {
           <button
              onClick={() => setShowSettings(true)}
              className="p-2 hover:bg-slate-700 rounded-full transition text-slate-300"
-             disabled={status === 'working' || status === 'resting'}
+             disabled={!canConfigure}
           >
             <Settings size={20} />
           </button>
@@ -377,7 +383,7 @@ const PushUpPyramid = () => {
               </p>
             )}
 
-            {status === 'resting' && (
+            {canSkip && (
               <button
                 onClick={handleSkipRest}
                 className="flex items-center gap-2 px-8 py-4 bg-slate-700 hover:bg-slate-600 rounded-full text-white font-bold text-lg transition-colors shadow-lg active:bg-slate-500"
@@ -387,7 +393,7 @@ const PushUpPyramid = () => {
               </button>
             )}
 
-            {(status === 'working' || status === 'countdown') && (
+            {canPause && (
               <button
                 onClick={handleTogglePause}
                 className="flex items-center gap-2 px-8 py-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-full text-slate-300 font-bold text-lg transition-colors shadow-lg active:bg-slate-700"
