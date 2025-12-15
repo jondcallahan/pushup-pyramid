@@ -17,13 +17,11 @@ const PushUpPyramid = () => {
   const [state, send] = useMachine(workoutMachine);
   const { context } = state;
 
-  // Settings modal now managed by machine (parallel state)
   const showSettings = state.matches({ settings: 'open' });
   const openSettings = () => send({ type: 'OPEN_SETTINGS' });
   const closeSettings = () => send({ type: 'CLOSE_SETTINGS' });
 
-  // --- Derived State from Machine (using tags) ---
-  // Tags work across parallel states - they're collected from all active state nodes
+  // --- Derived State from Machine ---
   const status = (() => {
     if (state.hasTag('idle')) return 'idle';
     if (state.hasTag('countdown')) return 'countdown';
@@ -34,16 +32,10 @@ const PushUpPyramid = () => {
     return 'idle';
   })();
 
-  // repPhase no longer needed - meta handles this directly
-
-  // Capability checks using state.can() - asks the machine directly
-  // This is more robust than tag checks as it respects actual transition guards
   const canPause = state.can({ type: 'PAUSE' });
   const canResume = state.can({ type: 'RESUME' });
   const canSkipRest = state.can({ type: 'SKIP_REST' });
   const canSetPeak = state.can({ type: 'SET_PEAK', peak: context.peakReps });
-
-  // UI configuration from state meta
   const stateMeta = selectStateMeta(state);
 
   // All data comes from machine context
@@ -77,7 +69,7 @@ const PushUpPyramid = () => {
   const handleTogglePause = () => send({ type: status === 'paused' ? 'RESUME' : 'PAUSE' });
   const handleSkipRest = () => send({ type: 'SKIP_REST' });
 
-  // --- Meta-driven UI Helpers ---
+  // --- UI Helpers ---
   const strokeColorClass = stateMeta.strokeColor;
 
   const renderMainContent = () => {
@@ -106,7 +98,6 @@ const PushUpPyramid = () => {
   };
 
   const getSubText = () => {
-    // For working states, show rep progress instead of static text
     if (stateMeta.subText === 'reps') {
       return `${context.completedRepsInSet} / ${currentTargetReps} Reps`;
     }

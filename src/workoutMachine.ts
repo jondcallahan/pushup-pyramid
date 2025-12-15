@@ -65,7 +65,6 @@ export const calculateRestSeconds = (reps: number): number => {
   return Math.min(60, calculated);
 };
 
-// --- Ticker Actor with configurable input ---
 type TickerInput = {
   intervalMs: number;
   eventType: 'COUNTDOWN_TICK' | 'REST_TICK';
@@ -144,24 +143,14 @@ export const workoutMachine = setup({
       type: 'SET_MUTED' as const,
       muted: context.isMuted
     })),
-    // Configuration actions
     setPeak: assign({
-      pyramidSets: ({ event }) => {
-        if (event.type !== 'SET_PEAK') return [];
-        return generatePyramid(event.peak);
-      },
-      peakReps: ({ event }) => {
-        if (event.type !== 'SET_PEAK') return 10;
-        return event.peak;
-      },
+      pyramidSets: ({ event }) => generatePyramid((event as { peak: number }).peak),
+      peakReps: ({ event }) => (event as { peak: number }).peak,
       currentSetIndex: 0,
       completedRepsInSet: 0,
     }),
     setTempo: assign({
-      tempoMs: ({ event }) => {
-        if (event.type !== 'SET_TEMPO') return 2000;
-        return event.tempoMs;
-      },
+      tempoMs: ({ event }) => (event as { tempoMs: number }).tempoMs,
     }),
   },
   guards: {
@@ -223,7 +212,6 @@ export const workoutMachine = setup({
     },
   },
   states: {
-    // Settings modal - parallel to exercise state
     settings: {
       initial: 'closed',
       states: {
@@ -240,7 +228,6 @@ export const workoutMachine = setup({
       },
     },
 
-    // Main exercise flow
     exercise: {
       initial: 'idle',
       states: {
@@ -509,20 +496,13 @@ export const selectRestSeconds = (context: WorkoutContext): number => {
   return context.restSecondsLeft;
 };
 
-// Helper to extract meta from current state(s)
-// XState stores meta keyed by state node id, we collect all active state metas
+const defaultMeta: StateMeta = {
+  strokeColor: 'text-slate-600',
+  mainContent: { type: 'icon', icon: 'play' },
+  subText: '',
+};
+
 export const selectStateMeta = (state: { getMeta: () => Record<string, unknown> }): StateMeta => {
-  const defaultMeta: StateMeta = {
-    strokeColor: 'text-slate-600',
-    mainContent: { type: 'icon', icon: 'play' },
-    subText: '',
-  };
-  
-  // Get all meta objects from active states (most specific wins)
-  const meta = state.getMeta();
-  const metas = Object.values(meta).filter(Boolean) as StateMeta[];
-  if (metas.length === 0) return defaultMeta;
-  
-  // Return the last (most specific/deepest) meta
-  return metas[metas.length - 1];
+  const metas = Object.values(state.getMeta()).filter(Boolean) as StateMeta[];
+  return metas[metas.length - 1] ?? defaultMeta;
 };
