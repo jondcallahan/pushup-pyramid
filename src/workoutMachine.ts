@@ -65,20 +65,16 @@ export const calculateRestSeconds = (reps: number): number => {
   return Math.min(60, calculated);
 };
 
-// --- Ticker Actors (defined inline for simplicity) ---
-const countdownTickerActor = fromCallback(({ sendBack }) => {
-  // First tick after 1 second (entry action already showed "3" and played beep)
-  const interval = setInterval(() => {
-    sendBack({ type: 'COUNTDOWN_TICK' });
-  }, 1000);
+// --- Ticker Actor with configurable input ---
+type TickerInput = {
+  intervalMs: number;
+  eventType: 'COUNTDOWN_TICK' | 'REST_TICK';
+};
 
-  return () => clearInterval(interval);
-});
-
-const restTickerActor = fromCallback(({ sendBack }) => {
+const tickerActor = fromCallback<WorkoutEvent, TickerInput>(({ sendBack, input }) => {
   const interval = setInterval(() => {
-    sendBack({ type: 'REST_TICK' });
-  }, 1000);
+    sendBack({ type: input.eventType });
+  }, input.intervalMs);
 
   return () => clearInterval(interval);
 });
@@ -92,8 +88,7 @@ export const workoutMachine = setup({
   actors: {
     wakeLock: wakeLockActor,
     audio: audioActor,
-    countdownTicker: countdownTickerActor,
-    restTicker: restTickerActor,
+    ticker: tickerActor,
   },
   actions: {
     resetForNewSet: assign({
@@ -277,7 +272,8 @@ export const workoutMachine = setup({
           },
           entry: ['initCountdown', 'sendPlayCountdownBeep'],
           invoke: {
-            src: 'countdownTicker',
+            src: 'ticker',
+            input: { intervalMs: 1000, eventType: 'COUNTDOWN_TICK' as const },
           },
           on: {
             COUNTDOWN_TICK: [
@@ -406,7 +402,8 @@ export const workoutMachine = setup({
           },
           entry: ['initRest', 'sendPlayRest'],
           invoke: {
-            src: 'restTicker',
+            src: 'ticker',
+            input: { intervalMs: 1000, eventType: 'REST_TICK' as const },
           },
           on: {
             REST_TICK: [
