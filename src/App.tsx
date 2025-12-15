@@ -1,5 +1,5 @@
 import { useMachine } from '@xstate/react';
-import { Play, Pause, SkipForward, RefreshCw, Volume2, VolumeX, Settings, X, ChevronUp, ChevronDown, Trophy } from 'lucide-react';
+import { Play, Pause, SkipForward, RefreshCw, Volume2, VolumeX, Settings, X, ChevronUp, ChevronDown, Trophy, Share2 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import {
   workoutMachine,
@@ -12,6 +12,7 @@ import {
   selectRestSeconds,
   selectStateMeta,
 } from './workoutMachine';
+import ShareModal from './components/ShareModal';
 
 const PushUpPyramid = () => {
   const [state, send] = useMachine(workoutMachine);
@@ -20,6 +21,9 @@ const PushUpPyramid = () => {
   const showSettings = state.matches({ settings: 'open' });
   const openSettings = () => send({ type: 'OPEN_SETTINGS' });
   const closeSettings = () => send({ type: 'CLOSE_SETTINGS' });
+
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // --- Derived State from Machine ---
   const status = (() => {
@@ -402,17 +406,34 @@ const PushUpPyramid = () => {
             )}
 
             {status === 'finished' && (
-              <button
-                onClick={handleReset}
-                className="flex items-center gap-2 px-8 py-4 bg-purple-600 hover:bg-purple-500 rounded-full text-white font-bold text-lg transition-colors shadow-lg active:bg-purple-700"
-              >
-                <RefreshCw size={24} />
-                Restart
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-full text-white font-bold text-lg transition-all shadow-lg shadow-purple-500/25 active:scale-95"
+                >
+                  <Share2 size={24} />
+                  Share
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-2 px-6 py-4 bg-slate-700 hover:bg-slate-600 rounded-full text-white font-bold text-lg transition-colors shadow-lg active:bg-slate-500"
+                >
+                  <RefreshCw size={24} />
+                </button>
+              </div>
             )}
         </div>
 
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        totalVolume={totalVolume}
+        peakReps={context.peakReps}
+        setsCompleted={context.pyramidSets.length}
+      />
     </div>
   );
 };
