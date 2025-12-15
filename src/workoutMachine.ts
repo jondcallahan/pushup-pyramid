@@ -202,6 +202,7 @@ export const workoutMachine = setup({
   },
   states: {
     idle: {
+      tags: ['idle', 'configurable'],
       on: {
         START: {
           target: 'active',
@@ -212,6 +213,7 @@ export const workoutMachine = setup({
 
     // Active state - wraps all workout activity
     active: {
+      tags: ['active'],
       // Wake lock - automatically acquired/released with active state
       invoke: { id: 'wakeLock', src: 'wakeLock' },
       initial: 'countdown',
@@ -224,6 +226,7 @@ export const workoutMachine = setup({
       },
       states: {
         countdown: {
+          tags: ['countdown', 'pauseable', 'timer'],
           entry: ['initCountdown', 'sendPlayCountdownBeep'],
           invoke: {
             src: 'countdownTicker',
@@ -243,9 +246,11 @@ export const workoutMachine = setup({
         },
 
         working: {
+          tags: ['working', 'pauseable'],
           initial: 'start',
           states: {
             start: {
+              tags: ['phase-start'],
               after: {
                 INITIAL_DELAY: [
                   {
@@ -259,6 +264,7 @@ export const workoutMachine = setup({
               },
             },
             down: {
+              tags: ['phase-down'],
               entry: 'sendPlayDown',
               after: {
                 PHASE_DELAY: {
@@ -268,6 +274,7 @@ export const workoutMachine = setup({
               },
             },
             up: {
+              tags: ['phase-up'],
               entry: 'sendPlayUp',
               after: {
                 PHASE_DELAY: [
@@ -286,6 +293,7 @@ export const workoutMachine = setup({
               },
             },
             lastDown: {
+              tags: ['phase-lastDown'],
               entry: 'sendPlayLastDown',
               after: {
                 PHASE_DELAY: {
@@ -295,6 +303,7 @@ export const workoutMachine = setup({
               },
             },
             lastUp: {
+              tags: ['phase-lastUp'],
               entry: 'sendPlayLastUp',
               after: {
                 PHASE_DELAY: '#workout.active.setComplete',
@@ -316,6 +325,7 @@ export const workoutMachine = setup({
         },
 
         resting: {
+          tags: ['resting', 'skippable', 'timer'],
           entry: ['initRest', 'sendPlayRest'],
           invoke: {
             src: 'restTicker',
@@ -347,6 +357,7 @@ export const workoutMachine = setup({
     },
 
     paused: {
+      tags: ['paused', 'configurable'],
       on: {
         RESUME: '#workout.active.hist',
         RESET: {
@@ -357,6 +368,7 @@ export const workoutMachine = setup({
     },
 
     finished: {
+      tags: ['finished', 'configurable'],
       entry: 'sendPlayFinish',
       on: {
         RESET: {
