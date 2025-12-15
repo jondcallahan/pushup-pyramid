@@ -17,10 +17,13 @@ const PushUpPyramid = () => {
   const [state, send] = useMachine(workoutMachine);
   const { context } = state;
 
-  // --- Local UI State (only for modals/settings) ---
-  const [showSettings, setShowSettings] = useState(false);
+  // Settings modal now managed by machine (parallel state)
+  const showSettings = state.matches({ settings: 'open' });
+  const openSettings = () => send({ type: 'OPEN_SETTINGS' });
+  const closeSettings = () => send({ type: 'CLOSE_SETTINGS' });
 
   // --- Derived State from Machine (using tags) ---
+  // Tags work across parallel states - they're collected from all active state nodes
   const status = (() => {
     if (state.hasTag('idle')) return 'idle';
     if (state.hasTag('countdown')) return 'countdown';
@@ -170,7 +173,7 @@ const PushUpPyramid = () => {
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <Settings size={20} /> Settings
               </h2>
-              <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-slate-700 rounded-full">
+              <button onClick={() => closeSettings()} className="p-2 hover:bg-slate-700 rounded-full">
                 <X size={24} />
               </button>
             </div>
@@ -231,7 +234,7 @@ const PushUpPyramid = () => {
             </div>
 
             <button
-              onClick={() => setShowSettings(false)}
+              onClick={() => closeSettings()}
               className="w-full mt-8 py-4 bg-slate-700 hover:bg-slate-600 rounded-xl font-bold text-lg transition-colors"
             >
               Done
@@ -248,7 +251,7 @@ const PushUpPyramid = () => {
         </h1>
         <div className="flex gap-4">
           <button
-             onClick={() => setShowSettings(true)}
+             onClick={() => openSettings()}
              className="p-2 hover:bg-slate-700 rounded-full transition text-slate-300 disabled:opacity-50"
              disabled={!canSetPeak}
           >
