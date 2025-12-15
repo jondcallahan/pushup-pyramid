@@ -119,7 +119,7 @@ const ShareModal = ({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-800">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Share2 size={20} className="text-purple-400" />
+            <Share2 size={20} className="text-[#c9362c]" />
             Share Your Workout
           </h2>
           <button
@@ -148,7 +148,7 @@ const ShareModal = ({
           <button
             onClick={handleShare}
             disabled={isGenerating}
-            className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-purple-500/25"
+            className="w-full py-4 px-6 bg-[#c9362c] hover:bg-[#a82d25] text-white rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <Loader2 size={24} className="animate-spin" />

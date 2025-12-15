@@ -165,16 +165,6 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
                 </div>
                 <div className="text-[#8b8579] text-[9px] tracking-[0.2em] mt-1">SETS</div>
               </div>
-              <div className="w-px bg-[#c9362c]/30" />
-              <div>
-                <div 
-                  className="text-[#f5f0e8] text-3xl"
-                  style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}
-                >
-                  {Math.round(totalVolume * 0.36)}
-                </div>
-                <div className="text-[#8b8579] text-[9px] tracking-[0.2em] mt-1">CALS</div>
-              </div>
             </div>
           </div>
 
