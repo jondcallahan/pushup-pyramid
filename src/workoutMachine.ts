@@ -144,6 +144,25 @@ export const workoutMachine = setup({
       type: 'SET_MUTED' as const,
       muted: context.isMuted
     })),
+    // Configuration actions
+    setPeak: assign({
+      pyramidSets: ({ event }) => {
+        if (event.type !== 'SET_PEAK') return [];
+        return generatePyramid(event.peak);
+      },
+      peakReps: ({ event }) => {
+        if (event.type !== 'SET_PEAK') return 10;
+        return event.peak;
+      },
+      currentSetIndex: 0,
+      completedRepsInSet: 0,
+    }),
+    setTempo: assign({
+      tempoMs: ({ event }) => {
+        if (event.type !== 'SET_TEMPO') return 2000;
+        return event.tempoMs;
+      },
+    }),
   },
   guards: {
     hasMoreReps: ({ context }) => {
@@ -197,19 +216,10 @@ export const workoutMachine = setup({
     },
     SET_PEAK: {
       target: '.exercise.idle',
-      actions: [
-        assign({
-          pyramidSets: ({ event }) => generatePyramid(event.peak),
-          peakReps: ({ event }) => event.peak,
-          currentSetIndex: 0,
-          completedRepsInSet: 0,
-        }),
-      ],
+      actions: 'setPeak',
     },
     SET_TEMPO: {
-      actions: assign({
-        tempoMs: ({ event }) => event.tempoMs,
-      }),
+      actions: 'setTempo',
     },
   },
   states: {
