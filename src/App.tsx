@@ -33,10 +33,12 @@ const PushUpPyramid = () => {
 
   // repPhase no longer needed - meta handles this directly
 
-  // Capability-based flags from tags
-  const canPause = state.hasTag('pauseable');
-  const canSkip = state.hasTag('skippable');
-  const canConfigure = state.hasTag('configurable');
+  // Capability checks using state.can() - asks the machine directly
+  // This is more robust than tag checks as it respects actual transition guards
+  const canPause = state.can({ type: 'PAUSE' });
+  const canResume = state.can({ type: 'RESUME' });
+  const canSkipRest = state.can({ type: 'SKIP_REST' });
+  const canSetPeak = state.can({ type: 'SET_PEAK', peak: context.peakReps });
 
   // UI configuration from state meta
   const stateMeta = selectStateMeta(state);
@@ -247,8 +249,8 @@ const PushUpPyramid = () => {
         <div className="flex gap-4">
           <button
              onClick={() => setShowSettings(true)}
-             className="p-2 hover:bg-slate-700 rounded-full transition text-slate-300"
-             disabled={!canConfigure}
+             className="p-2 hover:bg-slate-700 rounded-full transition text-slate-300 disabled:opacity-50"
+             disabled={!canSetPeak}
           >
             <Settings size={20} />
           </button>
@@ -375,7 +377,7 @@ const PushUpPyramid = () => {
               </p>
             )}
 
-            {canSkip && (
+            {canSkipRest && (
               <button
                 onClick={handleSkipRest}
                 className="flex items-center gap-2 px-8 py-4 bg-slate-700 hover:bg-slate-600 rounded-full text-white font-bold text-lg transition-colors shadow-lg active:bg-slate-500"
@@ -395,7 +397,7 @@ const PushUpPyramid = () => {
               </button>
             )}
 
-            {status === 'paused' && (
+            {canResume && (
               <button
                 onClick={handleTogglePause}
                 className="flex items-center gap-2 px-8 py-4 bg-yellow-600 hover:bg-yellow-500 rounded-full text-white font-bold text-lg transition-colors shadow-lg active:bg-yellow-700"
