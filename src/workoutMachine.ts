@@ -43,7 +43,9 @@ export type WorkoutEvent =
   | { type: 'SET_TEMPO'; tempoMs: number }
   | { type: 'TOGGLE_MUTE' }
   | { type: 'COUNTDOWN_TICK' }
-  | { type: 'REST_TICK' };
+  | { type: 'REST_TICK' }
+  | { type: 'OPEN_SETTINGS' }
+  | { type: 'CLOSE_SETTINGS' };
 
 // --- Helper Functions ---
 export const generatePyramid = (peak: number): number[] => {
@@ -177,7 +179,7 @@ export const workoutMachine = setup({
   },
 }).createMachine({
   id: 'workout',
-  initial: 'idle',
+  type: 'parallel',
   context: {
     peakReps: 10,
     pyramidSets: generatePyramid(10),
@@ -199,7 +201,7 @@ export const workoutMachine = setup({
       actions: ['toggleMute', 'syncMuteState'],
     },
     SET_PEAK: {
-      target: '.idle',
+      target: '.exercise.idle',
       actions: [
         assign({
           pyramidSets: ({ event }) => generatePyramid(event.peak),
@@ -216,6 +218,27 @@ export const workoutMachine = setup({
     },
   },
   states: {
+    // Settings modal - parallel to exercise state
+    settings: {
+      initial: 'closed',
+      states: {
+        closed: {
+          on: {
+            OPEN_SETTINGS: 'open',
+          },
+        },
+        open: {
+          on: {
+            CLOSE_SETTINGS: 'closed',
+          },
+        },
+      },
+    },
+
+    // Main exercise flow
+    exercise: {
+      initial: 'idle',
+      states: {
     idle: {
       tags: ['idle', 'configurable'],
       meta: {
@@ -327,7 +350,7 @@ export const workoutMachine = setup({
                     target: 'down',
                   },
                   {
-                    target: '#workout.active.setComplete',
+                    target: '#workout.exercise.active.setComplete',
                   },
                 ],
               },
@@ -356,7 +379,7 @@ export const workoutMachine = setup({
               },
               entry: 'sendPlayLastUp',
               after: {
-                PHASE_DELAY: '#workout.active.setComplete',
+                PHASE_DELAY: '#workout.exercise.active.setComplete',
               },
             },
           },
@@ -366,7 +389,7 @@ export const workoutMachine = setup({
           always: [
             {
               guard: 'isWorkoutComplete',
-              target: '#workout.finished',
+              target: '#workout.exercise.finished',
             },
             {
               target: 'resting',
@@ -411,34 +434,36 @@ export const workoutMachine = setup({
       },
     },
 
-    paused: {
-      tags: ['paused', 'configurable'],
-      meta: {
-        strokeColor: 'text-yellow-500',
-        mainContent: { type: 'text', text: 'PAUSED', className: 'text-4xl' },
-        subText: 'Tap to Resume',
-      },
-      on: {
-        RESUME: '#workout.active.hist',
-        RESET: {
-          target: 'idle',
-          actions: 'resetWorkout',
+        paused: {
+          tags: ['paused', 'configurable'],
+          meta: {
+            strokeColor: 'text-yellow-500',
+            mainContent: { type: 'text', text: 'PAUSED', className: 'text-4xl' },
+            subText: 'Tap to Resume',
+          },
+          on: {
+            RESUME: '#workout.exercise.active.hist',
+            RESET: {
+              target: 'idle',
+              actions: 'resetWorkout',
+            },
+          },
         },
-      },
-    },
 
-    finished: {
-      tags: ['finished', 'configurable'],
-      meta: {
-        strokeColor: 'text-purple-500',
-        mainContent: { type: 'trophy' },
-        subText: 'Great Job!',
-      },
-      entry: 'sendPlayFinish',
-      on: {
-        RESET: {
-          target: 'idle',
-          actions: 'resetWorkout',
+        finished: {
+          tags: ['finished', 'configurable'],
+          meta: {
+            strokeColor: 'text-purple-500',
+            mainContent: { type: 'trophy' },
+            subText: 'Great Job!',
+          },
+          entry: 'sendPlayFinish',
+          on: {
+            RESET: {
+              target: 'idle',
+              actions: 'resetWorkout',
+            },
+          },
         },
       },
     },
