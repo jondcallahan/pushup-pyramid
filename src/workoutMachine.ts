@@ -203,10 +203,6 @@ export const workoutMachine = setup({
     TOGGLE_MUTE: {
       actions: ['toggleMute', 'syncMuteState'],
     },
-    SET_PEAK: {
-      target: '.exercise.idle',
-      actions: 'setPeak',
-    },
     SET_TEMPO: {
       actions: 'setTempo',
     },
@@ -242,6 +238,9 @@ export const workoutMachine = setup({
         START: {
           target: 'active',
           actions: 'resetWorkout',
+        },
+        SET_PEAK: {
+          actions: 'setPeak',
         },
       },
     },
@@ -441,6 +440,10 @@ export const workoutMachine = setup({
               target: 'idle',
               actions: 'resetWorkout',
             },
+            SET_PEAK: {
+              target: 'idle',
+              actions: 'setPeak',
+            },
           },
         },
 
@@ -456,6 +459,10 @@ export const workoutMachine = setup({
             RESET: {
               target: 'idle',
               actions: 'resetWorkout',
+            },
+            SET_PEAK: {
+              target: 'idle',
+              actions: 'setPeak',
             },
           },
         },
