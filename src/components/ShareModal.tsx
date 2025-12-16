@@ -114,25 +114,25 @@ const ShareModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-700">
+    <div className="fixed inset-0 z-50 bg-[#990000]/90 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#FFFDD0] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border-2 border-[#DC143C]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Share2 size={20} className="text-[#c9362c]" />
+        <div className="flex items-center justify-between p-4 border-b-2 border-[#DC143C]/30 bg-[#FFF8DC]">
+          <h2 className="text-lg font-bold text-[#990000] flex items-center gap-2">
+            <Share2 size={20} className="text-[#DC143C]" />
             Share Your Workout
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-full transition-colors"
+            className="p-2 hover:bg-[#DC143C]/10 rounded-full transition-colors"
           >
-            <X size={20} className="text-slate-400" />
+            <X size={20} className="text-[#990000]" />
           </button>
         </div>
 
         {/* Card Preview */}
-        <div className="p-4 flex justify-center bg-slate-950/50">
-          <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 transform scale-[0.85] origin-center">
+        <div className="p-4 flex justify-center bg-[#FAF0DC]">
+          <div className="rounded-2xl overflow-hidden shadow-2xl ring-2 ring-[#DC143C]/20 transform scale-[0.85] origin-center">
             <ShareCard
               ref={cardRef}
               totalVolume={totalVolume}
@@ -144,11 +144,11 @@ const ShareModal = ({
         </div>
 
         {/* Actions */}
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-3 bg-[#FFFDD0]">
           <button
             onClick={handleShare}
             disabled={isGenerating}
-            className="w-full py-4 px-6 bg-[#c9362c] hover:bg-[#a82d25] text-white rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-4 px-6 bg-[#DC143C] hover:bg-[#990000] text-[#FFFDD0] rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
           >
             {isGenerating ? (
               <Loader2 size={24} className="animate-spin" />
@@ -168,7 +168,7 @@ const ShareModal = ({
           <button
             onClick={handleDownload}
             disabled={isGenerating}
-            className="w-full py-3 px-6 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-3 px-6 bg-[#FFF8DC] hover:bg-[#F5E6C8] text-[#990000] border-2 border-[#DC143C]/40 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
           >
             <Download size={20} />
             Save to Device
@@ -176,8 +176,8 @@ const ShareModal = ({
         </div>
 
         {/* Tip */}
-        <div className="px-4 pb-4">
-          <p className="text-xs text-slate-500 text-center">
+        <div className="px-4 pb-4 bg-[#FFFDD0]">
+          <p className="text-xs text-[#990000]/70 text-center">
             Share your achievement on Instagram, Twitter, or send to friends!
           </p>
         </div>
