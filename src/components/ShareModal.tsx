@@ -114,25 +114,86 @@ const ShareModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#990000]/90 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-[#FFFDD0] rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border-2 border-[#DC143C]">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{
+        background: `
+          radial-gradient(ellipse at center, rgba(92,64,51,0.95) 0%, rgba(40,28,22,0.98) 100%)
+        `,
+        backdropFilter: 'blur(8px)',
+      }}
+    >
+      {/* Google Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+      `}</style>
+
+      <div 
+        className="w-full max-w-md overflow-hidden relative"
+        style={{
+          background: 'linear-gradient(175deg, #F5E6D3 0%, #E8D4BC 50%, #DCC5A5 100%)',
+          borderRadius: '4px',
+          boxShadow: `
+            0 0 0 3px #8B0000,
+            0 0 0 6px #F5E6D3,
+            0 0 0 8px #5C4033,
+            0 25px 50px rgba(0,0,0,0.5)
+          `,
+        }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b-2 border-[#DC143C]/30 bg-[#FFF8DC]">
-          <h2 className="text-lg font-bold text-[#990000] flex items-center gap-2">
-            <Share2 size={20} className="text-[#DC143C]" />
-            Share Your Workout
+        <div 
+          className="flex items-center justify-between px-5 py-4"
+          style={{
+            background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
+            borderBottom: '3px solid #5C4033',
+          }}
+        >
+          <h2 
+            className="flex items-center gap-3"
+            style={{ 
+              fontFamily: '"Libre Baskerville", Georgia, serif',
+              fontSize: '16px',
+              color: '#F5E6D3',
+              letterSpacing: '0.05em',
+            }}
+          >
+            <Share2 size={18} style={{ color: '#D4B896' }} />
+            Share Your Victory
           </h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-[#DC143C]/10 rounded-full transition-colors"
+            className="p-2 rounded-full transition-all hover:scale-110"
+            style={{ 
+              background: 'rgba(0,0,0,0.2)',
+              color: '#F5E6D3',
+            }}
           >
-            <X size={20} className="text-[#990000]" />
+            <X size={18} />
           </button>
         </div>
 
         {/* Card Preview */}
-        <div className="p-4 flex justify-center bg-[#FAF0DC]">
-          <div className="rounded-2xl overflow-hidden shadow-2xl ring-2 ring-[#DC143C]/20 transform scale-[0.85] origin-center">
+        <div 
+          className="p-6 flex justify-center"
+          style={{
+            background: `
+              repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 19px,
+                rgba(139,0,0,0.03) 19px,
+                rgba(139,0,0,0.03) 20px
+              )
+            `,
+          }}
+        >
+          <div 
+            className="rounded overflow-hidden transform scale-[0.82] origin-center"
+            style={{
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)',
+            }}
+          >
             <ShareCard
               ref={cardRef}
               totalVolume={totalVolume}
@@ -144,23 +205,33 @@ const ShareModal = ({
         </div>
 
         {/* Actions */}
-        <div className="p-4 space-y-3 bg-[#FFFDD0]">
+        <div className="p-5 space-y-3" style={{ background: 'rgba(139,0,0,0.03)' }}>
           <button
             onClick={handleShare}
             disabled={isGenerating}
-            className="w-full py-4 px-6 bg-[#DC143C] hover:bg-[#990000] text-[#FFFDD0] rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+            className="w-full py-4 px-6 rounded flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
+              color: '#F5E6D3',
+              fontFamily: '"Libre Baskerville", Georgia, serif',
+              fontSize: '15px',
+              fontWeight: 'bold',
+              letterSpacing: '0.1em',
+              boxShadow: '0 4px 12px rgba(139,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+              border: '2px solid #5C4033',
+            }}
           >
             {isGenerating ? (
-              <Loader2 size={24} className="animate-spin" />
+              <Loader2 size={22} className="animate-spin" />
             ) : showCopied ? (
               <>
-                <Check size={24} />
-                Copied to Clipboard!
+                <Check size={22} />
+                COPIED TO CLIPBOARD
               </>
             ) : (
               <>
-                <Share2 size={24} />
-                Share Image
+                <Share2 size={22} />
+                SHARE CERTIFICATE
               </>
             )}
           </button>
@@ -168,17 +239,37 @@ const ShareModal = ({
           <button
             onClick={handleDownload}
             disabled={isGenerating}
-            className="w-full py-3 px-6 bg-[#FFF8DC] hover:bg-[#F5E6C8] text-[#990000] border-2 border-[#DC143C]/40 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-3 px-6 rounded flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: 'transparent',
+              color: '#5C4033',
+              fontFamily: '"Libre Baskerville", Georgia, serif',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              letterSpacing: '0.1em',
+              border: '2px solid #8B0000',
+            }}
           >
-            <Download size={20} />
-            Save to Device
+            <Download size={18} />
+            SAVE TO DEVICE
           </button>
         </div>
 
         {/* Tip */}
-        <div className="px-4 pb-4 bg-[#FFFDD0]">
-          <p className="text-xs text-[#990000]/70 text-center">
-            Share your achievement on Instagram, Twitter, or send to friends!
+        <div 
+          className="px-5 pb-5 text-center"
+          style={{ background: 'rgba(139,0,0,0.03)' }}
+        >
+          <p 
+            style={{ 
+              fontFamily: '"Libre Baskerville", Georgia, serif',
+              fontStyle: 'italic',
+              fontSize: '11px',
+              color: '#5C4033',
+              opacity: 0.7,
+            }}
+          >
+            Spread the word — inspire others to join the grind
           </p>
         </div>
       </div>

@@ -10,19 +10,18 @@ interface ShareCardProps {
 const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
   ({ totalVolume, peakReps, setsCompleted, date }, ref) => {
     const formattedDate = date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      month: 'short',
+      weekday: 'long',
+      month: 'long',
       day: 'numeric',
-      year: 'numeric',
     }).toUpperCase();
 
     // Rank based on volume
     const getRank = () => {
-      if (totalVolume >= 200) return { title: 'HEAVYWEIGHT', stars: 5 };
-      if (totalVolume >= 150) return { title: 'CRUISERWEIGHT', stars: 4 };
-      if (totalVolume >= 100) return { title: 'MIDDLEWEIGHT', stars: 3 };
-      if (totalVolume >= 50) return { title: 'WELTERWEIGHT', stars: 2 };
-      return { title: 'FEATHERWEIGHT', stars: 1 };
+      if (totalVolume >= 200) return { title: 'CHAMPION', emoji: '🏆', tier: 5 };
+      if (totalVolume >= 150) return { title: 'CONTENDER', emoji: '🔥', tier: 4 };
+      if (totalVolume >= 100) return { title: 'WARRIOR', emoji: '⚔️', tier: 3 };
+      if (totalVolume >= 50) return { title: 'FIGHTER', emoji: '💪', tier: 2 };
+      return { title: 'ROOKIE', emoji: '🌱', tier: 1 };
     };
 
     const rank = getRank();
@@ -32,146 +31,285 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         ref={ref}
         className="w-[390px] h-[520px] relative overflow-hidden"
         style={{
-          background: '#FFFDD0',
-          fontFamily: 'system-ui, sans-serif',
+          // Aged parchment with burnt edges feel
+          background: `
+            radial-gradient(ellipse at 20% 0%, #8B0000 0%, transparent 50%),
+            radial-gradient(ellipse at 80% 100%, #8B0000 0%, transparent 50%),
+            linear-gradient(175deg, #F5E6D3 0%, #E8D4BC 30%, #DCC5A5 60%, #D4B896 100%)
+          `,
         }}
       >
-        {/* Worn paper texture overlay */}
+        {/* Google Fonts - Loaded inline for image generation */}
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+        `}</style>
+
+        {/* Ink splatter texture overlay */}
         <div 
-          className="absolute inset-0 opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.04] mix-blend-multiply"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+            backgroundImage: `
+              radial-gradient(circle at 15% 85%, #000 0%, transparent 8%),
+              radial-gradient(circle at 85% 20%, #000 0%, transparent 6%),
+              radial-gradient(circle at 45% 45%, #000 0%, transparent 3%),
+              radial-gradient(circle at 70% 70%, #000 0%, transparent 4%)
+            `,
           }}
         />
 
-        {/* Diagonal corner cuts */}
+        {/* Worn creases effect */}
         <div 
-          className="absolute top-0 right-0 w-20 h-20"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
-            background: 'linear-gradient(135deg, transparent 50%, #DC143C 50%)',
-          }}
-        />
-        <div 
-          className="absolute bottom-0 left-0 w-20 h-20"
-          style={{
-            background: 'linear-gradient(-45deg, transparent 50%, #DC143C 50%)',
+            background: `
+              linear-gradient(90deg, transparent 49.5%, #5C4033 49.5%, #5C4033 50.5%, transparent 50.5%),
+              linear-gradient(0deg, transparent 49.5%, #5C4033 49.5%, #5C4033 50.5%, transparent 50.5%)
+            `,
           }}
         />
 
-        {/* Main border */}
-        <div className="absolute inset-3 border-2 border-[#DC143C]" />
-        <div className="absolute inset-4 border border-[#DC143C]/30" />
+        {/* Decorative border - vintage ticket style */}
+        <div 
+          className="absolute inset-2"
+          style={{
+            border: '3px double #8B0000',
+            boxShadow: 'inset 0 0 0 6px #F5E6D3, inset 0 0 0 8px #8B0000',
+          }}
+        />
+
+        {/* Corner ornaments */}
+        {['top-4 left-4', 'top-4 right-4 rotate-90', 'bottom-4 left-4 -rotate-90', 'bottom-4 right-4 rotate-180'].map((pos, i) => (
+          <div key={i} className={`absolute ${pos} w-8 h-8 opacity-60`}>
+            <svg viewBox="0 0 32 32" fill="#8B0000">
+              <path d="M0 0 L12 0 L12 3 L3 3 L3 12 L0 12 Z" />
+              <circle cx="8" cy="8" r="2" />
+            </svg>
+          </div>
+        ))}
 
         {/* Content */}
-        <div className="relative z-10 h-full flex flex-col p-7">
+        <div className="relative z-10 h-full flex flex-col px-8 py-6">
           
-          {/* Top banner */}
-          <div className="text-center mb-2">
+          {/* Top ribbon banner */}
+          <div className="relative -mx-8 mb-3">
             <div 
-              className="inline-block px-6 py-1 bg-[#DC143C] text-[#FFFDD0] text-[10px] tracking-[0.4em] font-black"
-              style={{ clipPath: 'polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)' }}
+              className="py-2 text-center"
+              style={{
+                background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              }}
             >
-              OFFICIAL RECORD
+              <span 
+                style={{ 
+                  fontFamily: '"Libre Baskerville", Georgia, serif',
+                  fontSize: '10px',
+                  letterSpacing: '0.35em',
+                  color: '#F5E6D3',
+                  textTransform: 'uppercase',
+                }}
+              >
+                ✦ Certificate of Completion ✦
+              </span>
+            </div>
+            {/* Ribbon folds */}
+            <div className="absolute -bottom-2 left-0 w-4 h-2" style={{ background: 'linear-gradient(135deg, #4A0000 50%, transparent 50%)' }} />
+            <div className="absolute -bottom-2 right-0 w-4 h-2" style={{ background: 'linear-gradient(-135deg, #4A0000 50%, transparent 50%)' }} />
+          </div>
+
+          {/* Date with flourish */}
+          <div className="text-center mb-2">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <div className="h-px w-8" style={{ background: 'linear-gradient(90deg, transparent, #8B0000)' }} />
+              <span style={{ fontFamily: '"Libre Baskerville", serif', fontSize: '9px', color: '#5C4033', letterSpacing: '0.15em' }}>
+                {formattedDate}
+              </span>
+              <div className="h-px w-8" style={{ background: 'linear-gradient(-90deg, transparent, #8B0000)' }} />
             </div>
           </div>
 
-          {/* Date */}
-          <div className="text-center text-[#990000]/60 text-[10px] tracking-[0.3em] mb-4">
-            {formattedDate}
-          </div>
-
-          {/* Main title */}
-          <div className="text-center mb-1">
-            <h1 
-              className="text-[#990000] text-5xl tracking-tight leading-none"
+          {/* Main title - stacked dramatic */}
+          <div className="text-center mb-2">
+            <div 
               style={{ 
-                fontFamily: 'Impact, Haettenschweiler, sans-serif',
-                textShadow: '3px 3px 0 #DC143C',
+                fontFamily: '"Alfa Slab One", Impact, sans-serif',
+                fontSize: '52px',
+                lineHeight: '0.85',
+                color: '#8B0000',
+                textShadow: '3px 3px 0 #D4B896, 4px 4px 0 rgba(0,0,0,0.15)',
+                letterSpacing: '-0.02em',
               }}
             >
               PYRAMID
-            </h1>
-            <h2 
-              className="text-[#DC143C] text-3xl tracking-[0.2em] -mt-1"
-              style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}
+            </div>
+            <div 
+              style={{ 
+                fontFamily: '"Alfa Slab One", Impact, sans-serif',
+                fontSize: '32px',
+                color: '#5C4033',
+                letterSpacing: '0.25em',
+                marginTop: '-4px',
+              }}
             >
               PUSH
-            </h2>
+            </div>
           </div>
 
-          {/* Decorative line */}
-          <div className="flex items-center justify-center gap-3 my-3">
-            <div className="h-px w-12 bg-[#DC143C]" />
-            <div className="w-2 h-2 rotate-45 border border-[#DC143C]" />
-            <div className="h-px w-12 bg-[#DC143C]" />
+          {/* Decorative divider */}
+          <div className="flex items-center justify-center gap-2 my-2">
+            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, #8B0000, transparent)' }} />
+            <div style={{ color: '#8B0000', fontSize: '14px' }}>◆</div>
+            <div className="h-px w-16" style={{ background: 'linear-gradient(90deg, transparent, #8B0000, transparent)' }} />
           </div>
 
-          {/* THE BIG NUMBER */}
-          <div className="flex-1 flex flex-col items-center justify-center -mt-2">
-            <div className="text-[#990000]/60 text-xs tracking-[0.5em] mb-1">TOTAL REPS</div>
+          {/* THE BIG NUMBER - Hero section */}
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <div 
+              style={{ 
+                fontFamily: '"Libre Baskerville", serif',
+                fontSize: '11px',
+                letterSpacing: '0.4em',
+                color: '#5C4033',
+                marginBottom: '4px',
+              }}
+            >
+              TOTAL REPETITIONS
+            </div>
+            
             <div className="relative">
+              {/* Starburst behind number */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center opacity-10"
+                style={{ transform: 'scale(1.8)' }}
+              >
+                {[...Array(12)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className="absolute w-1 h-24 bg-[#8B0000]"
+                    style={{ transform: `rotate(${i * 30}deg)` }}
+                  />
+                ))}
+              </div>
+              
               <span 
-                className="text-[#990000] text-[120px] leading-none font-black"
                 style={{ 
-                  fontFamily: 'Impact, Haettenschweiler, sans-serif',
-                  textShadow: '4px 4px 0 #DC143C, 8px 8px 0 rgba(153,0,0,0.2)',
-                  letterSpacing: '-0.02em',
+                  fontFamily: '"Alfa Slab One", Impact, sans-serif',
+                  fontSize: '140px',
+                  lineHeight: '1',
+                  color: '#8B0000',
+                  textShadow: `
+                    0 0 0 #8B0000,
+                    4px 4px 0 #D4B896,
+                    6px 6px 0 #5C4033,
+                    8px 8px 15px rgba(0,0,0,0.25)
+                  `,
+                  position: 'relative',
+                  zIndex: 1,
                 }}
               >
                 {totalVolume}
               </span>
             </div>
             
-            {/* Rank badge */}
-            <div className="mt-2 flex flex-col items-center">
-              <div className="flex gap-1 mb-1">
-                {[...Array(5)].map((_, i) => (
-                  <span 
-                    key={i} 
-                    className={`text-lg ${i < rank.stars ? 'text-[#DC143C]' : 'text-[#DC143C]/20'}`}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <div 
-                className="text-[#990000] text-sm tracking-[0.3em]"
-                style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}
+            {/* Rank medallion */}
+            <div 
+              className="mt-3 px-5 py-2 relative"
+              style={{
+                background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
+                clipPath: 'polygon(10% 0%, 90% 0%, 100% 50%, 90% 100%, 10% 100%, 0% 50%)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.25)',
+              }}
+            >
+              <span 
+                style={{ 
+                  fontFamily: '"Libre Baskerville", serif',
+                  fontSize: '13px',
+                  letterSpacing: '0.2em',
+                  color: '#F5E6D3',
+                  fontWeight: 'bold',
+                }}
               >
-                {rank.title}
-              </div>
+                {rank.emoji} {rank.title} {rank.emoji}
+              </span>
             </div>
           </div>
 
-          {/* Stats row - fight card style */}
-          <div className="border-t border-b border-[#DC143C]/50 py-4 my-2">
+          {/* Stats - vintage ledger style */}
+          <div 
+            className="py-3 my-2"
+            style={{
+              borderTop: '2px solid #8B0000',
+              borderBottom: '2px solid #8B0000',
+              background: 'linear-gradient(180deg, rgba(139,0,0,0.05) 0%, transparent 100%)',
+            }}
+          >
             <div className="flex justify-around text-center">
               <div>
                 <div 
-                  className="text-[#990000] text-3xl"
-                  style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}
+                  style={{ 
+                    fontFamily: '"Alfa Slab One", sans-serif',
+                    fontSize: '36px',
+                    color: '#8B0000',
+                    lineHeight: '1',
+                  }}
                 >
                   {peakReps}
                 </div>
-                <div className="text-[#990000]/60 text-[9px] tracking-[0.2em] mt-1">PEAK</div>
+                <div 
+                  style={{ 
+                    fontFamily: '"Libre Baskerville", serif',
+                    fontSize: '9px',
+                    letterSpacing: '0.2em',
+                    color: '#5C4033',
+                    marginTop: '4px',
+                  }}
+                >
+                  PEAK REPS
+                </div>
               </div>
-              <div className="w-px bg-[#DC143C]/30" />
+              
+              <div 
+                className="w-px"
+                style={{ background: 'linear-gradient(180deg, transparent, #8B0000, transparent)' }}
+              />
+              
               <div>
                 <div 
-                  className="text-[#990000] text-3xl"
-                  style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}
+                  style={{ 
+                    fontFamily: '"Alfa Slab One", sans-serif',
+                    fontSize: '36px',
+                    color: '#8B0000',
+                    lineHeight: '1',
+                  }}
                 >
                   {setsCompleted}
                 </div>
-                <div className="text-[#990000]/60 text-[9px] tracking-[0.2em] mt-1">SETS</div>
+                <div 
+                  style={{ 
+                    fontFamily: '"Libre Baskerville", serif',
+                    fontSize: '9px',
+                    letterSpacing: '0.2em',
+                    color: '#5C4033',
+                    marginTop: '4px',
+                  }}
+                >
+                  TOTAL SETS
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom tagline */}
+          {/* Bottom motto */}
           <div className="text-center mt-2">
-            <div className="text-[#990000]/60 text-[10px] tracking-[0.4em]">
-              NO EXCUSES • NO SHORTCUTS • NO QUIT
+            <div 
+              style={{ 
+                fontFamily: '"Libre Baskerville", serif',
+                fontStyle: 'italic',
+                fontSize: '11px',
+                color: '#5C4033',
+                letterSpacing: '0.05em',
+              }}
+            >
+              "Iron sharpens iron, push by push"
             </div>
           </div>
         </div>
