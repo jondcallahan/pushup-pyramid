@@ -1,6 +1,6 @@
 import { assign, fromCallback, sendTo, setup } from "xstate";
 import { audioActor } from "./actors/audio";
-import { wakeLockActor } from "./actors/wakeLock";
+import { wakeLockActor } from "./actors/wake-lock";
 
 // --- Types ---
 
@@ -12,13 +12,13 @@ export type MainContentType =
   | { type: "rest" }
   | { type: "trophy" };
 
-export interface StateMeta {
+export type StateMeta = {
   strokeColor: string;
   mainContent: MainContentType;
   subText: string;
-}
+};
 
-export interface WorkoutContext {
+export type WorkoutContext = {
   peakReps: number;
   pyramidSets: number[];
   currentSetIndex: number;
@@ -31,7 +31,7 @@ export interface WorkoutContext {
   // For smooth UI animation
   timerStartedAt: number;
   timerDuration: number;
-}
+};
 
 export type WorkoutEvent =
   | { type: "START" }
@@ -50,8 +50,12 @@ export type WorkoutEvent =
 // --- Helper Functions ---
 export const generatePyramid = (peak: number): number[] => {
   const pyramid: number[] = [];
-  for (let i = 1; i <= peak; i++) pyramid.push(i);
-  for (let i = peak - 1; i >= 1; i--) pyramid.push(i);
+  for (let i = 1; i <= peak; i++) {
+    pyramid.push(i);
+  }
+  for (let i = peak - 1; i >= 1; i--) {
+    pyramid.push(i);
+  }
   return pyramid;
 };
 
@@ -521,5 +525,5 @@ export const selectStateMeta = (state: {
   getMeta: () => Record<string, unknown>;
 }): StateMeta => {
   const metas = Object.values(state.getMeta()).filter(Boolean) as StateMeta[];
-  return metas[metas.length - 1] ?? defaultMeta;
+  return metas.at(-1) ?? defaultMeta;
 };

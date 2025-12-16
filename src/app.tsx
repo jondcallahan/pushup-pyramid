@@ -14,8 +14,8 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import DebugShareCards from "./components/DebugShareCards";
-import ShareModal from "./components/ShareModal";
+import DebugShareCards from "./components/debug-share-cards";
+import ShareModal from "./components/share-modal";
 import {
   selectCompletedVolume,
   selectCountdownSeconds,
@@ -26,7 +26,7 @@ import {
   selectStateMeta,
   selectTotalVolume,
   workoutMachine,
-} from "./workoutMachine";
+} from "./workout-machine";
 
 const PushUpPyramid = () => {
   const [state, send] = useMachine(workoutMachine);
@@ -41,12 +41,24 @@ const PushUpPyramid = () => {
 
   // --- Derived State from Machine ---
   const status = (() => {
-    if (state.hasTag("idle")) return "idle";
-    if (state.hasTag("countdown")) return "countdown";
-    if (state.hasTag("working")) return "working";
-    if (state.hasTag("resting")) return "resting";
-    if (state.hasTag("paused")) return "paused";
-    if (state.hasTag("finished")) return "finished";
+    if (state.hasTag("idle")) {
+      return "idle";
+    }
+    if (state.hasTag("countdown")) {
+      return "countdown";
+    }
+    if (state.hasTag("working")) {
+      return "working";
+    }
+    if (state.hasTag("resting")) {
+      return "resting";
+    }
+    if (state.hasTag("paused")) {
+      return "paused";
+    }
+    if (state.hasTag("finished")) {
+      return "finished";
+    }
     return "idle";
   })();
 
@@ -110,15 +122,17 @@ const PushUpPyramid = () => {
           <span
             className={`${className} text-center font-black tracking-tighter`}
           >
-            {lines.map((line, i) => (
-              <span key={i}>
+            {lines.map((line) => (
+              <span key={line}>
                 {line}
-                {i < lines.length - 1 && <br />}
+                <br />
               </span>
             ))}
           </span>
         );
       }
+      default:
+        return null;
     }
   };
 
@@ -174,14 +188,14 @@ const PushUpPyramid = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [status, context.timerStartedAt, context.timerDuration]);
+  }, [status, context]);
 
   const strokeDashoffset = circumference - smoothProgress * circumference;
 
   return (
     <div className="relative flex min-h-screen touch-manipulation select-none flex-col overflow-hidden bg-slate-900 font-sans text-slate-100">
       {/* Settings Modal */}
-      {showSettings && (
+      {showSettings === true && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/95 p-6 backdrop-blur-sm">
           <div className="w-full max-w-sm rounded-2xl border border-slate-700 bg-slate-800 p-6 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
@@ -191,6 +205,7 @@ const PushUpPyramid = () => {
               <button
                 className="rounded-full p-2 hover:bg-slate-700"
                 onClick={() => closeSettings()}
+                type="button"
               >
                 <X size={24} />
               </button>
@@ -199,15 +214,16 @@ const PushUpPyramid = () => {
             <div className="space-y-6">
               {/* Peak Reps Control */}
               <div>
-                <label className="mb-2 block font-semibold text-slate-400 text-sm uppercase tracking-wider">
+                <span className="mb-2 block font-semibold text-slate-400 text-sm uppercase tracking-wider">
                   Pyramid Peak
-                </label>
+                </span>
                 <div className="flex items-center justify-between rounded-xl bg-slate-900 p-4">
                   <button
                     className="rounded-lg bg-slate-800 p-3 hover:bg-slate-700 active:bg-slate-600"
                     onClick={() =>
                       handleSetPeak(Math.max(3, context.peakReps - 1))
                     }
+                    type="button"
                   >
                     <ChevronDown size={24} />
                   </button>
@@ -222,6 +238,7 @@ const PushUpPyramid = () => {
                     onClick={() =>
                       handleSetPeak(Math.min(20, context.peakReps + 1))
                     }
+                    type="button"
                   >
                     <ChevronUp size={24} />
                   </button>
@@ -233,9 +250,9 @@ const PushUpPyramid = () => {
 
               {/* Tempo Control */}
               <div>
-                <label className="mb-2 block font-semibold text-slate-400 text-sm uppercase tracking-wider">
+                <span className="mb-2 block font-semibold text-slate-400 text-sm uppercase tracking-wider">
                   Rep Speed
-                </label>
+                </span>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { label: "Fast", ms: 1500 },
@@ -250,6 +267,7 @@ const PushUpPyramid = () => {
                       }`}
                       key={opt.label}
                       onClick={() => handleSetTempo(opt.ms)}
+                      type="button"
                     >
                       {opt.label}
                     </button>
@@ -261,6 +279,7 @@ const PushUpPyramid = () => {
             <button
               className="mt-8 w-full rounded-xl bg-slate-700 py-4 font-bold text-lg transition-colors hover:bg-slate-600"
               onClick={() => closeSettings()}
+              type="button"
             >
               Done
             </button>
@@ -281,18 +300,21 @@ const PushUpPyramid = () => {
             className="rounded-full p-2 text-slate-300 transition hover:bg-slate-700 disabled:opacity-50"
             disabled={!canSetPeak}
             onClick={() => openSettings()}
+            type="button"
           >
             <Settings size={20} />
           </button>
           <button
             className="rounded-full p-2 transition hover:bg-slate-700"
             onClick={handleToggleMute}
+            type="button"
           >
             {context.isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
           </button>
           <button
             className="rounded-full p-2 text-red-400 transition hover:bg-slate-700"
             onClick={handleReset}
+            type="button"
           >
             <RefreshCw size={20} />
           </button>
@@ -303,7 +325,9 @@ const PushUpPyramid = () => {
       <div className="h-2 w-full bg-slate-800">
         <div
           className="h-full bg-green-500 transition-all duration-500 ease-out"
-          style={{ width: `${status === "finished" ? 100 : progressPercent}%` }}
+          style={{
+            width: `${status === "finished" ? "100" : String(progressPercent)}%`,
+          }}
         />
       </div>
 
@@ -344,9 +368,11 @@ const PushUpPyramid = () => {
             className="relative flex items-center justify-center rounded-full outline-none transition-transform active:scale-95"
             onClick={handleMainClick}
             style={{ width: size, height: size }}
+            type="button"
           >
             {/* SVG Background Track */}
             <svg
+              aria-hidden="true"
               className="-rotate-90 absolute top-0 left-0 transform"
               height={size}
               width={size}
@@ -400,17 +426,19 @@ const PushUpPyramid = () => {
             const isCompleted = isFinished || idx < context.currentSetIndex;
             const isCurrent = !isFinished && idx === context.currentSetIndex;
             const heightPercent = (reps / context.peakReps) * 100;
+            let barStyle = "bg-slate-700 opacity-40";
+            if (isCurrent) {
+              barStyle =
+                "animate-pulse bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]";
+            } else if (isCompleted) {
+              barStyle = "bg-green-600 opacity-90";
+            }
+            // Using position as part of key since pyramid sets are ordered and position matters
+            const setKey = `pyramid-set-position-${String(idx)}`;
             return (
               <div
-                className={`flex-1 rounded-t-sm transition-all duration-300 ${
-                  isCurrent
-                    ? "animate-pulse bg-green-400 shadow-[0_0_10px_rgba(74,222,128,0.5)]"
-                    : isCompleted
-                      ? "bg-green-600 opacity-90"
-                      : "bg-slate-700 opacity-40"
-                }
-                `}
-                key={idx}
+                className={`flex-1 rounded-t-sm transition-all duration-300 ${barStyle}`}
+                key={setKey}
                 style={{ height: `${heightPercent}%` }}
               />
             );
@@ -426,30 +454,33 @@ const PushUpPyramid = () => {
             </p>
           )}
 
-          {canSkipRest && (
+          {canSkipRest === true && (
             <button
               className="flex items-center gap-2 rounded-full bg-slate-700 px-8 py-4 font-bold text-lg text-white shadow-lg transition-colors hover:bg-slate-600 active:bg-slate-500"
               onClick={handleSkipRest}
+              type="button"
             >
               <SkipForward size={24} />
               Skip Rest
             </button>
           )}
 
-          {canPause && (
+          {canPause === true && (
             <button
               className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-8 py-4 font-bold text-lg text-slate-300 shadow-lg transition-colors hover:bg-slate-700 active:bg-slate-700"
               onClick={handleTogglePause}
+              type="button"
             >
               <Pause size={24} />
               Pause
             </button>
           )}
 
-          {canResume && (
+          {canResume === true && (
             <button
               className="flex items-center gap-2 rounded-full bg-yellow-600 px-8 py-4 font-bold text-lg text-white shadow-lg transition-colors hover:bg-yellow-500 active:bg-yellow-700"
               onClick={handleTogglePause}
+              type="button"
             >
               <Play size={24} />
               Resume
@@ -461,6 +492,7 @@ const PushUpPyramid = () => {
               <button
                 className="flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 font-bold text-lg text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-500 hover:to-indigo-500 active:scale-95"
                 onClick={() => setShowShareModal(true)}
+                type="button"
               >
                 <Share2 size={24} />
                 Share
@@ -468,6 +500,7 @@ const PushUpPyramid = () => {
               <button
                 className="flex items-center gap-2 rounded-full bg-slate-700 px-6 py-4 font-bold text-lg text-white shadow-lg transition-colors hover:bg-slate-600 active:bg-slate-500"
                 onClick={handleReset}
+                type="button"
               >
                 <RefreshCw size={24} />
               </button>

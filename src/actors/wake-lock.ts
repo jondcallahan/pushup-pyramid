@@ -6,7 +6,9 @@ import { fromCallback } from "xstate";
  * and releases it when the parent state exits.
  */
 export const wakeLockActor = fromCallback(() => {
-  if (!("wakeLock" in navigator)) return;
+  if (!("wakeLock" in navigator)) {
+    return;
+  }
 
   let sentinel: WakeLockSentinel | null = null;
 

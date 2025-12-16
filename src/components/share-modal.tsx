@@ -1,15 +1,15 @@
 import { toPng } from "html-to-image";
 import { Check, Download, Loader2, Share2, X } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import ShareCard from "./ShareCard";
+import ShareCard from "./share-card";
 
-interface ShareModalProps {
+type ShareModalProps = {
   isOpen: boolean;
   onClose: () => void;
   totalVolume: number;
   peakReps: number;
   setsCompleted: number;
-}
+};
 
 const ShareModal = ({
   isOpen,
@@ -23,7 +23,9 @@ const ShareModal = ({
   const [showCopied, setShowCopied] = useState(false);
 
   const generateImage = useCallback(async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
+    if (!cardRef.current) {
+      return null;
+    }
 
     try {
       // Generate at 2x for retina quality
@@ -45,7 +47,9 @@ const ShareModal = ({
   const handleDownload = useCallback(async () => {
     setIsGenerating(true);
     try {
-      if (!cardRef.current) return;
+      if (!cardRef.current) {
+        return;
+      }
 
       const dataUrl = await toPng(cardRef.current, {
         quality: 1,
@@ -108,7 +112,9 @@ const ShareModal = ({
     }
   }, [generateImage, totalVolume, handleDownload]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div
@@ -166,6 +172,7 @@ const ShareModal = ({
               background: "rgba(0,0,0,0.2)",
               color: "#F5E6D3",
             }}
+            type="button"
           >
             <X size={18} />
           </button>
@@ -223,20 +230,27 @@ const ShareModal = ({
                 "0 4px 12px rgba(139,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
               border: "2px solid #5C4033",
             }}
+            type="button"
           >
-            {isGenerating ? (
-              <Loader2 className="animate-spin" size={22} />
-            ) : showCopied ? (
-              <>
-                <Check size={22} />
-                COPIED TO CLIPBOARD
-              </>
-            ) : (
-              <>
-                <Share2 size={22} />
-                SHARE CERTIFICATE
-              </>
-            )}
+            {(() => {
+              if (isGenerating) {
+                return <Loader2 className="animate-spin" size={22} />;
+              }
+              if (showCopied) {
+                return (
+                  <>
+                    <Check size={22} />
+                    COPIED TO CLIPBOARD
+                  </>
+                );
+              }
+              return (
+                <>
+                  <Share2 size={22} />
+                  SHARE CERTIFICATE
+                </>
+              );
+            })()}
           </button>
 
           <button
@@ -252,6 +266,7 @@ const ShareModal = ({
               letterSpacing: "0.1em",
               border: "2px solid #8B0000",
             }}
+            type="button"
           >
             <Download size={18} />
             SAVE TO DEVICE

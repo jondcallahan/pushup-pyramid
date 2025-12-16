@@ -22,7 +22,9 @@ export type AudioEvent =
  */
 export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
   const AudioContextClass =
-    window.AudioContext || (window as any).webkitAudioContext;
+    window.AudioContext ||
+    (window as unknown as { webkitAudioContext: typeof AudioContext })
+      .webkitAudioContext;
   let ctx: AudioContext | null = null;
   let isMuted = false;
 
@@ -37,10 +39,14 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
   };
 
   const playTone = (freq: number, duration = 0.1, volume = 0.3) => {
-    if (isMuted) return;
+    if (isMuted) {
+      return;
+    }
 
     const audioCtx = ensureContext();
-    if (!audioCtx) return;
+    if (!audioCtx) {
+      return;
+    }
 
     try {
       const osc = audioCtx.createOscillator();
@@ -103,6 +109,8 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         break;
       case "PLAY_COUNTDOWN_BEEP":
         playTone(880, 0.05, 0.3); // A5
+        break;
+      default:
         break;
     }
   });

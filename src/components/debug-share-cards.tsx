@@ -1,4 +1,4 @@
-import ShareCard from "./ShareCard";
+import ShareCard from "./share-card";
 
 const placeholderData = [
   {
@@ -39,8 +39,8 @@ const DebugShareCards = () => (
     <p className="mb-8 text-neutral-400">Cream & Crimson Theme Preview</p>
 
     <div className="flex flex-wrap gap-8">
-      {placeholderData.map((data, index) => (
-        <div className="flex flex-col items-center gap-3" key={index}>
+      {placeholderData.map((data) => (
+        <div className="flex flex-col items-center gap-3" key={data.label}>
           <ShareCard
             date={new Date()}
             peakReps={data.peakReps}
