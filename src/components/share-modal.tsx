@@ -1,15 +1,15 @@
-import { useRef, useState, useCallback } from 'react';
-import { toPng } from 'html-to-image';
-import { X, Download, Share2, Check, Loader2 } from 'lucide-react';
-import ShareCard from './ShareCard';
+import { toPng } from "html-to-image";
+import { Check, Download, Loader2, Share2, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import ShareCard from "./share-card";
 
-interface ShareModalProps {
+type ShareModalProps = {
   isOpen: boolean;
   onClose: () => void;
   totalVolume: number;
   peakReps: number;
   setsCompleted: number;
-}
+};
 
 const ShareModal = ({
   isOpen,
@@ -23,7 +23,9 @@ const ShareModal = ({
   const [showCopied, setShowCopied] = useState(false);
 
   const generateImage = useCallback(async (): Promise<Blob | null> => {
-    if (!cardRef.current) return null;
+    if (!cardRef.current) {
+      return null;
+    }
 
     try {
       // Generate at 2x for retina quality
@@ -37,7 +39,7 @@ const ShareModal = ({
       const response = await fetch(dataUrl);
       return await response.blob();
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error("Error generating image:", error);
       return null;
     }
   }, []);
@@ -45,7 +47,9 @@ const ShareModal = ({
   const handleDownload = useCallback(async () => {
     setIsGenerating(true);
     try {
-      if (!cardRef.current) return;
+      if (!cardRef.current) {
+        return;
+      }
 
       const dataUrl = await toPng(cardRef.current, {
         quality: 1,
@@ -53,12 +57,12 @@ const ShareModal = ({
         cacheBust: true,
       });
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.download = `pyramid-push-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -69,21 +73,18 @@ const ShareModal = ({
     try {
       const blob = await generateImage();
       if (!blob) {
-        throw new Error('Failed to generate image');
+        throw new Error("Failed to generate image");
       }
 
-      const file = new File([blob], 'pyramid-push-workout.png', {
-        type: 'image/png',
+      const file = new File([blob], "pyramid-push-workout.png", {
+        type: "image/png",
       });
 
       // Check if native share is available and supports files
-      if (
-        navigator.share &&
-        navigator.canShare?.({ files: [file] })
-      ) {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: 'Pyramid Push Workout',
+          title: "Pyramid Push Workout",
           text: `Just crushed ${totalVolume} push-ups! 💪🔥`,
         });
       } else {
@@ -91,7 +92,7 @@ const ShareModal = ({
         try {
           await navigator.clipboard.write([
             new ClipboardItem({
-              'image/png': blob,
+              "image/png": blob,
             }),
           ]);
           setShowCopied(true);
@@ -103,72 +104,83 @@ const ShareModal = ({
       }
     } catch (error) {
       // User cancelled share or error - ignore AbortError
-      if ((error as Error).name !== 'AbortError') {
-        console.error('Share failed:', error);
+      if ((error as Error).name !== "AbortError") {
+        console.error("Share failed:", error);
       }
     } finally {
       setIsGenerating(false);
     }
   }, [generateImage, totalVolume, handleDownload]);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-slate-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-slate-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-800">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Share2 size={20} className="text-[#c9362c]" />
+        <div className="flex items-center justify-between border-slate-800 border-b p-4">
+          <h2 className="flex items-center gap-2 font-bold text-lg text-white">
+            <Share2 className="text-[#c9362c]" size={20} />
             Share Your Workout
           </h2>
           <button
+            className="rounded-full p-2 transition-colors hover:bg-slate-800"
             onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-full transition-colors"
+            type="button"
           >
-            <X size={20} className="text-slate-400" />
+            <X className="text-slate-400" size={20} />
           </button>
         </div>
 
         {/* Card Preview */}
-        <div className="p-4 flex justify-center bg-slate-950/50">
-          <div className="rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 transform scale-[0.85] origin-center">
+        <div className="flex justify-center bg-slate-950/50 p-4">
+          <div className="origin-center scale-[0.85] transform overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10">
             <ShareCard
-              ref={cardRef}
-              totalVolume={totalVolume}
-              peakReps={peakReps}
-              setsCompleted={setsCompleted}
               date={new Date()}
+              peakReps={peakReps}
+              ref={cardRef}
+              setsCompleted={setsCompleted}
+              totalVolume={totalVolume}
             />
           </div>
         </div>
 
         {/* Actions */}
-        <div className="p-4 space-y-3">
+        <div className="space-y-3 p-4">
           <button
-            onClick={handleShare}
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#c9362c] px-6 py-4 font-bold text-lg text-white transition-all hover:bg-[#a82d25] disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
-            className="w-full py-4 px-6 bg-[#c9362c] hover:bg-[#a82d25] text-white rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={handleShare}
+            type="button"
           >
-            {isGenerating ? (
-              <Loader2 size={24} className="animate-spin" />
-            ) : showCopied ? (
-              <>
-                <Check size={24} />
-                Copied to Clipboard!
-              </>
-            ) : (
-              <>
-                <Share2 size={24} />
-                Share Image
-              </>
-            )}
+            {(() => {
+              if (isGenerating) {
+                return <Loader2 className="animate-spin" size={24} />;
+              }
+              if (showCopied) {
+                return (
+                  <>
+                    <Check size={24} />
+                    Copied to Clipboard!
+                  </>
+                );
+              }
+              return (
+                <>
+                  <Share2 size={24} />
+                  Share Image
+                </>
+              );
+            })()}
           </button>
 
           <button
-            onClick={handleDownload}
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-slate-800 px-6 py-3 font-semibold text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
-            className="w-full py-3 px-6 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={handleDownload}
+            type="button"
           >
             <Download size={20} />
             Save to Device
@@ -177,7 +189,7 @@ const ShareModal = ({
 
         {/* Tip */}
         <div className="px-4 pb-4">
-          <p className="text-xs text-slate-500 text-center">
+          <p className="text-center text-slate-500 text-xs">
             Share your achievement on Instagram, Twitter, or send to friends!
           </p>
         </div>
