@@ -1,4 +1,4 @@
-import { fromCallback } from 'xstate';
+import { fromCallback } from "xstate";
 
 /**
  * Countdown Ticker Actor
@@ -8,10 +8,10 @@ import { fromCallback } from 'xstate';
 export const countdownTickerActor = fromCallback<never, { duration: number }>(
   ({ sendBack }) => {
     // Send initial tick immediately
-    sendBack({ type: 'COUNTDOWN_TICK' });
+    sendBack({ type: "COUNTDOWN_TICK" });
 
     const interval = setInterval(() => {
-      sendBack({ type: 'COUNTDOWN_TICK' });
+      sendBack({ type: "COUNTDOWN_TICK" });
     }, 1000);
 
     return () => clearInterval(interval);
@@ -28,12 +28,12 @@ export const restTickerActor = fromCallback<never, { duration: number }>(
     const duration = input.duration;
 
     // Send initial state
-    sendBack({ type: 'REST_TICK', remaining: duration });
+    sendBack({ type: "REST_TICK", remaining: duration });
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const remaining = Math.max(0, duration - elapsed);
-      sendBack({ type: 'REST_TICK', remaining: Math.ceil(remaining / 1000) });
+      sendBack({ type: "REST_TICK", remaining: Math.ceil(remaining / 1000) });
     }, 100); // More frequent for smooth UI
 
     return () => clearInterval(interval);

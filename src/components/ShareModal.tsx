@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
-import { toPng } from 'html-to-image';
-import { X, Download, Share2, Check, Loader2 } from 'lucide-react';
-import ShareCard from './ShareCard';
+import { toPng } from "html-to-image";
+import { Check, Download, Loader2, Share2, X } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import ShareCard from "./ShareCard";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -37,7 +37,7 @@ const ShareModal = ({
       const response = await fetch(dataUrl);
       return await response.blob();
     } catch (error) {
-      console.error('Error generating image:', error);
+      console.error("Error generating image:", error);
       return null;
     }
   }, []);
@@ -53,12 +53,12 @@ const ShareModal = ({
         cacheBust: true,
       });
 
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.download = `pyramid-push-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (error) {
-      console.error('Download failed:', error);
+      console.error("Download failed:", error);
     } finally {
       setIsGenerating(false);
     }
@@ -69,21 +69,18 @@ const ShareModal = ({
     try {
       const blob = await generateImage();
       if (!blob) {
-        throw new Error('Failed to generate image');
+        throw new Error("Failed to generate image");
       }
 
-      const file = new File([blob], 'pyramid-push-workout.png', {
-        type: 'image/png',
+      const file = new File([blob], "pyramid-push-workout.png", {
+        type: "image/png",
       });
 
       // Check if native share is available and supports files
-      if (
-        navigator.share &&
-        navigator.canShare?.({ files: [file] })
-      ) {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: 'Pyramid Push Workout',
+          title: "Pyramid Push Workout",
           text: `Just crushed ${totalVolume} push-ups! 💪🔥`,
         });
       } else {
@@ -91,7 +88,7 @@ const ShareModal = ({
         try {
           await navigator.clipboard.write([
             new ClipboardItem({
-              'image/png': blob,
+              "image/png": blob,
             }),
           ]);
           setShowCopied(true);
@@ -103,8 +100,8 @@ const ShareModal = ({
       }
     } catch (error) {
       // User cancelled share or error - ignore AbortError
-      if ((error as Error).name !== 'AbortError') {
-        console.error('Share failed:', error);
+      if ((error as Error).name !== "AbortError") {
+        console.error("Share failed:", error);
       }
     } finally {
       setIsGenerating(false);
@@ -114,13 +111,13 @@ const ShareModal = ({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{
         background: `
           radial-gradient(ellipse at center, rgba(92,64,51,0.95) 0%, rgba(40,28,22,0.98) 100%)
         `,
-        backdropFilter: 'blur(8px)',
+        backdropFilter: "blur(8px)",
       }}
     >
       {/* Google Fonts */}
@@ -128,11 +125,12 @@ const ShareModal = ({
         @import url('https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
       `}</style>
 
-      <div 
-        className="w-full max-w-md overflow-hidden relative"
+      <div
+        className="relative w-full max-w-md overflow-hidden"
         style={{
-          background: 'linear-gradient(175deg, #F5E6D3 0%, #E8D4BC 50%, #DCC5A5 100%)',
-          borderRadius: '4px',
+          background:
+            "linear-gradient(175deg, #F5E6D3 0%, #E8D4BC 50%, #DCC5A5 100%)",
+          borderRadius: "4px",
           boxShadow: `
             0 0 0 3px #8B0000,
             0 0 0 6px #F5E6D3,
@@ -142,31 +140,31 @@ const ShareModal = ({
         }}
       >
         {/* Header */}
-        <div 
+        <div
           className="flex items-center justify-between px-5 py-4"
           style={{
-            background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
-            borderBottom: '3px solid #5C4033',
+            background: "linear-gradient(180deg, #8B0000 0%, #660000 100%)",
+            borderBottom: "3px solid #5C4033",
           }}
         >
-          <h2 
+          <h2
             className="flex items-center gap-3"
-            style={{ 
+            style={{
               fontFamily: '"Libre Baskerville", Georgia, serif',
-              fontSize: '16px',
-              color: '#F5E6D3',
-              letterSpacing: '0.05em',
+              fontSize: "16px",
+              color: "#F5E6D3",
+              letterSpacing: "0.05em",
             }}
           >
-            <Share2 size={18} style={{ color: '#D4B896' }} />
+            <Share2 size={18} style={{ color: "#D4B896" }} />
             Share Your Victory
           </h2>
           <button
+            className="rounded-full p-2 transition-all hover:scale-110"
             onClick={onClose}
-            className="p-2 rounded-full transition-all hover:scale-110"
-            style={{ 
-              background: 'rgba(0,0,0,0.2)',
-              color: '#F5E6D3',
+            style={{
+              background: "rgba(0,0,0,0.2)",
+              color: "#F5E6D3",
             }}
           >
             <X size={18} />
@@ -174,8 +172,8 @@ const ShareModal = ({
         </div>
 
         {/* Card Preview */}
-        <div 
-          className="p-6 flex justify-center"
+        <div
+          className="flex justify-center p-6"
           style={{
             background: `
               repeating-linear-gradient(
@@ -188,41 +186,46 @@ const ShareModal = ({
             `,
           }}
         >
-          <div 
-            className="rounded overflow-hidden transform scale-[0.82] origin-center"
+          <div
+            className="origin-center scale-[0.82] transform overflow-hidden rounded"
             style={{
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)',
+              boxShadow:
+                "0 8px 32px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2)",
             }}
           >
             <ShareCard
-              ref={cardRef}
-              totalVolume={totalVolume}
-              peakReps={peakReps}
-              setsCompleted={setsCompleted}
               date={new Date()}
+              peakReps={peakReps}
+              ref={cardRef}
+              setsCompleted={setsCompleted}
+              totalVolume={totalVolume}
             />
           </div>
         </div>
 
         {/* Actions */}
-        <div className="p-5 space-y-3" style={{ background: 'rgba(139,0,0,0.03)' }}>
+        <div
+          className="space-y-3 p-5"
+          style={{ background: "rgba(139,0,0,0.03)" }}
+        >
           <button
-            onClick={handleShare}
+            className="flex w-full items-center justify-center gap-3 rounded px-6 py-4 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
-            className="w-full py-4 px-6 rounded flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handleShare}
             style={{
-              background: 'linear-gradient(180deg, #8B0000 0%, #660000 100%)',
-              color: '#F5E6D3',
+              background: "linear-gradient(180deg, #8B0000 0%, #660000 100%)",
+              color: "#F5E6D3",
               fontFamily: '"Libre Baskerville", Georgia, serif',
-              fontSize: '15px',
-              fontWeight: 'bold',
-              letterSpacing: '0.1em',
-              boxShadow: '0 4px 12px rgba(139,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-              border: '2px solid #5C4033',
+              fontSize: "15px",
+              fontWeight: "bold",
+              letterSpacing: "0.1em",
+              boxShadow:
+                "0 4px 12px rgba(139,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)",
+              border: "2px solid #5C4033",
             }}
           >
             {isGenerating ? (
-              <Loader2 size={22} className="animate-spin" />
+              <Loader2 className="animate-spin" size={22} />
             ) : showCopied ? (
               <>
                 <Check size={22} />
@@ -237,17 +240,17 @@ const ShareModal = ({
           </button>
 
           <button
-            onClick={handleDownload}
+            className="flex w-full items-center justify-center gap-3 rounded px-6 py-3 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
-            className="w-full py-3 px-6 rounded flex items-center justify-center gap-3 transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handleDownload}
             style={{
-              background: 'transparent',
-              color: '#5C4033',
+              background: "transparent",
+              color: "#5C4033",
               fontFamily: '"Libre Baskerville", Georgia, serif',
-              fontSize: '14px',
-              fontWeight: 'bold',
-              letterSpacing: '0.1em',
-              border: '2px solid #8B0000',
+              fontSize: "14px",
+              fontWeight: "bold",
+              letterSpacing: "0.1em",
+              border: "2px solid #8B0000",
             }}
           >
             <Download size={18} />
@@ -256,16 +259,16 @@ const ShareModal = ({
         </div>
 
         {/* Tip */}
-        <div 
+        <div
           className="px-5 pb-5 text-center"
-          style={{ background: 'rgba(139,0,0,0.03)' }}
+          style={{ background: "rgba(139,0,0,0.03)" }}
         >
-          <p 
-            style={{ 
+          <p
+            style={{
               fontFamily: '"Libre Baskerville", Georgia, serif',
-              fontStyle: 'italic',
-              fontSize: '11px',
-              color: '#5C4033',
+              fontStyle: "italic",
+              fontSize: "11px",
+              color: "#5C4033",
               opacity: 0.7,
             }}
           >
