@@ -1,4 +1,4 @@
-import { fromCallback } from 'xstate';
+import { fromCallback } from "xstate";
 
 /**
  * Wake Lock Actor
@@ -6,34 +6,36 @@ import { fromCallback } from 'xstate';
  * and releases it when the parent state exits.
  */
 export const wakeLockActor = fromCallback(() => {
-  if (!('wakeLock' in navigator)) return;
+  if (!("wakeLock" in navigator)) {
+    return;
+  }
 
   let sentinel: WakeLockSentinel | null = null;
 
   // Acquire wake lock
   const acquireLock = async () => {
     try {
-      sentinel = await navigator.wakeLock.request('screen');
-      console.log('Wake Lock acquired');
+      sentinel = await navigator.wakeLock.request("screen");
+      console.log("Wake Lock acquired");
     } catch (err) {
-      console.error('Wake Lock failed:', err);
+      console.error("Wake Lock failed:", err);
     }
   };
 
   // Re-acquire on visibility change (browser releases lock when tab is hidden)
   const handleVisibilityChange = () => {
-    if (document.visibilityState === 'visible' && !sentinel) {
+    if (document.visibilityState === "visible" && !sentinel) {
       acquireLock();
     }
   };
 
   acquireLock();
-  document.addEventListener('visibilitychange', handleVisibilityChange);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
 
   // Cleanup function: runs automatically when the parent state is exited
   return () => {
-    document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
     sentinel?.release();
-    console.log('Wake Lock released');
+    console.log("Wake Lock released");
   };
 });
