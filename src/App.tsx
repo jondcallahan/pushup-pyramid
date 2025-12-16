@@ -13,6 +13,7 @@ import {
   selectStateMeta,
 } from './workoutMachine';
 import ShareModal from './components/ShareModal';
+import DebugShareCards from './components/DebugShareCards';
 
 const PushUpPyramid = () => {
   const [state, send] = useMachine(workoutMachine);
@@ -438,4 +439,13 @@ const PushUpPyramid = () => {
   );
 };
 
-export default PushUpPyramid;
+// Debug route handler
+const App = () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('debug') === 'share') {
+    return <DebugShareCards />;
+  }
+  return <PushUpPyramid />;
+};
+
+export default App;
