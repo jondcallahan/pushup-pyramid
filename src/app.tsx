@@ -332,30 +332,30 @@ const PushUpPyramid = () => {
 
       {/* Main Content */}
       <div className="mx-auto flex w-full max-w-xl flex-1 flex-col items-center justify-center gap-6 p-6">
-        {/* Stats Row */}
-        <div className="flex w-full justify-around text-center">
-          <div className="min-w-[80px]">
-            <div className="font-semibold text-xs text-zinc-400 uppercase tracking-wider">
-              Current Set
+        {/* Stats Row - Card Style */}
+        <div className="grid w-full grid-cols-3 gap-3">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-zinc-900/50 p-3 backdrop-blur-sm">
+            <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
+              Set
             </div>
-            <div className="font-bold text-4xl text-white">
+            <div className="font-bold text-3xl text-white">
               {currentTargetReps || "-"}
             </div>
           </div>
-          <div className="min-w-[100px]">
-            <div className="font-semibold text-xs text-zinc-400 uppercase tracking-wider">
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-zinc-900/50 p-3 backdrop-blur-sm">
+            <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
               Volume
             </div>
-            <div className="font-bold text-4xl">
+            <div className="font-bold text-3xl">
               <span className="text-white">{completedVolume}</span>
               <span className="text-zinc-500">/{totalVolume}</span>
             </div>
           </div>
-          <div className="min-w-[80px]">
-            <div className="font-semibold text-xs text-zinc-400 uppercase tracking-wider">
-              Next Up
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-zinc-900/50 p-3 backdrop-blur-sm">
+            <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
+              Next
             </div>
-            <div className="font-bold text-4xl text-zinc-500">
+            <div className="font-bold text-3xl text-zinc-500">
               {nextSetReps ?? "-"}
             </div>
           </div>
