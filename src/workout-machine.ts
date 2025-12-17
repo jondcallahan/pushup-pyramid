@@ -240,7 +240,7 @@ export const workoutMachine = setup({
         idle: {
           tags: ["idle", "configurable"],
           meta: {
-            strokeColor: "text-slate-600",
+            strokeColor: "text-zinc-600",
             mainContent: { type: "icon", icon: "play" },
             subText: "Tap to Start",
           },
@@ -274,7 +274,7 @@ export const workoutMachine = setup({
               meta: {
                 strokeColor: "text-sky-400",
                 mainContent: { type: "countdown" },
-                subText: "Get Ready",
+                subText: "GET READY",
               },
               entry: ["initCountdown", "sendPlayCountdownBeep"],
               invoke: {
@@ -305,7 +305,7 @@ export const workoutMachine = setup({
                 start: {
                   tags: ["phase-start"],
                   meta: {
-                    strokeColor: "text-green-500",
+                    strokeColor: "text-lime-400",
                     mainContent: { type: "text", text: "GO" },
                     subText: "reps",
                   },
@@ -324,7 +324,7 @@ export const workoutMachine = setup({
                 down: {
                   tags: ["phase-down"],
                   meta: {
-                    strokeColor: "text-orange-500",
+                    strokeColor: "text-lime-600",
                     mainContent: { type: "text", text: "DOWN" },
                     subText: "reps",
                   },
@@ -339,7 +339,7 @@ export const workoutMachine = setup({
                 up: {
                   tags: ["phase-up"],
                   meta: {
-                    strokeColor: "text-green-500",
+                    strokeColor: "text-lime-400",
                     mainContent: { type: "text", text: "UP" },
                     subText: "reps",
                   },
@@ -363,11 +363,11 @@ export const workoutMachine = setup({
                 lastDown: {
                   tags: ["phase-lastDown"],
                   meta: {
-                    strokeColor: "text-red-500",
+                    strokeColor: "text-rose-500",
                     mainContent: {
                       type: "text",
-                      text: "LAST\nDOWN",
-                      className: "text-5xl",
+                      text: "LAST\nONE",
+                      className: "text-6xl",
                     },
                     subText: "reps",
                   },
@@ -382,11 +382,11 @@ export const workoutMachine = setup({
                 lastUp: {
                   tags: ["phase-lastUp"],
                   meta: {
-                    strokeColor: "text-teal-500",
+                    strokeColor: "text-rose-400",
                     mainContent: {
                       type: "text",
-                      text: "LAST\nUP",
-                      className: "text-6xl",
+                      text: "PUSH",
+                      className: "text-7xl",
                     },
                     subText: "reps",
                   },
@@ -413,9 +413,9 @@ export const workoutMachine = setup({
             resting: {
               tags: ["resting", "skippable", "timer"],
               meta: {
-                strokeColor: "text-blue-500",
+                strokeColor: "text-cyan-400",
                 mainContent: { type: "rest" },
-                subText: "Resting... Tap to Skip",
+                subText: "REST & RECOVER",
               },
               entry: ["initRest", "sendPlayRest"],
               invoke: {
@@ -451,13 +451,13 @@ export const workoutMachine = setup({
         paused: {
           tags: ["paused", "configurable"],
           meta: {
-            strokeColor: "text-yellow-500",
+            strokeColor: "text-amber-400",
             mainContent: {
               type: "text",
               text: "PAUSED",
-              className: "text-4xl",
+              className: "text-5xl",
             },
-            subText: "Tap to Resume",
+            subText: "TAP TO RESUME",
           },
           on: {
             RESUME: "#workout.exercise.active.hist",
@@ -475,9 +475,9 @@ export const workoutMachine = setup({
         finished: {
           tags: ["finished", "configurable"],
           meta: {
-            strokeColor: "text-purple-500",
+            strokeColor: "text-fuchsia-400",
             mainContent: { type: "trophy" },
-            subText: "Great Job!",
+            subText: "GREAT JOB!",
           },
           entry: "sendPlayFinish",
           on: {
@@ -523,7 +523,7 @@ export const selectRestSeconds = (context: WorkoutContext): number =>
   context.restSecondsLeft;
 
 const defaultMeta: StateMeta = {
-  strokeColor: "text-slate-600",
+  strokeColor: "text-zinc-600",
   mainContent: { type: "icon", icon: "play" },
   subText: "",
 };
