@@ -200,22 +200,32 @@ const PushUpPyramid = () => {
       return;
     }
 
+    let isActive = true;
+
     const animate = () => {
-      const elapsed = Date.now() - timerStartedAt;
+      if (!isActive) {
+        return;
+      }
+
+      const now = Date.now();
+      const elapsed = now - timerStartedAt;
       const remaining = Math.max(0, timerDuration - elapsed);
       const progress = remaining / timerDuration;
       setSmoothProgress(progress);
 
-      if (remaining > 0) {
+      if (remaining > 0 && isActive) {
         animationRef.current = requestAnimationFrame(animate);
       }
     };
 
-    animationRef.current = requestAnimationFrame(animate);
+    // Start animation immediately
+    animate();
 
     return () => {
+      isActive = false;
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
     };
   }, [status, timerStartedAt, timerDuration]);
