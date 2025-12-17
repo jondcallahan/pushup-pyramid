@@ -182,6 +182,8 @@ const PushUpPyramid = () => {
   const [smoothProgress, setSmoothProgress] = useState(1);
   const animationRef = useRef<number | null>(null);
 
+  const { timerStartedAt, timerDuration } = context;
+
   useEffect(() => {
     // Only animate during countdown or resting
     if (status !== "countdown" && status !== "resting") {
@@ -193,7 +195,6 @@ const PushUpPyramid = () => {
       return;
     }
 
-    const { timerStartedAt, timerDuration } = context;
     if (!(timerStartedAt && timerDuration)) {
       setSmoothProgress(1);
       return;
@@ -217,7 +218,7 @@ const PushUpPyramid = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [status, context]);
+  }, [status, timerStartedAt, timerDuration]);
 
   const strokeDashoffset = circumference - smoothProgress * circumference;
 
@@ -406,7 +407,7 @@ const PushUpPyramid = () => {
             {/* SVG Background Track */}
             <svg
               aria-hidden="true"
-              className="-rotate-90 absolute top-0 left-0 transform"
+              className="-rotate-90 absolute top-0 left-0"
               height={size}
               width={size}
             >
