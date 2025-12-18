@@ -70,13 +70,6 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     }
   };
 
-  const playChord = (freqs: number[], duration = 1.0, volumes: number[] = []) => {
-    if (isMuted) return;
-    freqs.forEach((f, i) => {
-      playTone(f, duration, volumes[i] ?? 0.15 / (i + 1));
-    });
-  };
-
   receive((event) => {
     switch (event.type) {
       case "SET_MUTED":
@@ -107,7 +100,8 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         playTone(880, 0.2, 0.45); // A5 - bright start
         break;
       case "PLAY_REST":
-        playChord([523.25, 659.25, 783.99], 1.2); // C5, E5, G5 - Zen Bell
+        playTone(440, 0.15, 0.3); // A4 - "duh"
+        setTimeout(() => playTone(329.63, 0.3, 0.4), 120); // E4 - "doom"
         break;
       case "PLAY_FINISH":
         // Fanfare Arpeggio
