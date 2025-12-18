@@ -113,7 +113,7 @@ const PushUpPyramid = () => {
       case "rest":
         return <span className="font-mono text-6xl">{restSeconds}s</span>;
       case "trophy":
-        return <Trophy className="animate-bounce text-fuchsia-400" size={64} />;
+        return <Trophy className="animate-bounce text-yellow-400" size={64} />;
       case "text": {
         const lines = mainContent.text.split("\n");
         const className = mainContent.className || "text-6xl";
