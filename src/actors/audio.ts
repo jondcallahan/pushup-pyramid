@@ -70,13 +70,6 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     }
   };
 
-  const playChord = (freqs: number[], duration = 1.0, volumes: number[] = []) => {
-    if (isMuted) return;
-    freqs.forEach((f, i) => {
-      playTone(f, duration, volumes[i] ?? 0.15 / (i + 1));
-    });
-  };
-
   receive((event) => {
     switch (event.type) {
       case "SET_MUTED":
