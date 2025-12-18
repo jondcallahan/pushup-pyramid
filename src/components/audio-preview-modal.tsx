@@ -1,4 +1,4 @@
-import { X, Play, Zap, Music } from "lucide-react";
+import { Play, X } from "lucide-react";
 
 interface AudioPreviewModalProps {
   isOpen: boolean;
