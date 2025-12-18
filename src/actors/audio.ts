@@ -70,6 +70,13 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     }
   };
 
+  const playChord = (freqs: number[], duration = 1.0, volumes: number[] = []) => {
+    if (isMuted) return;
+    freqs.forEach((f, i) => {
+      playTone(f, duration, volumes[i] ?? 0.15 / (i + 1));
+    });
+  };
+
   receive((event) => {
     switch (event.type) {
       case "SET_MUTED":
@@ -79,25 +86,28 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
         break;
       case "PLAY_DOWN":
-        playTone(150, 0.08, 0.4); // Deeper Tactile Click
+        playTone(440, 0.06, 0.4); // A4 - short tick
         break;
       case "PLAY_UP":
         playTone(800, 0.05, 0.3); // Sharper Tactile Click
         break;
       case "PLAY_LAST_DOWN":
-        playTone(100, 0.2, 0.5); // Resonant Thud
-        playTone(300, 0.15, 0.2, "triangle"); // Metallic ring
+        // Octave Power chord - punchy with resonance
+        playTone(220, 0.25, 0.25); // A3 - low root
+        playTone(440, 0.25, 0.25); // A4 - octave
+        playTone(659.25, 0.25, 0.2); // E5 - fifth
         break;
       case "PLAY_LAST_UP":
-        playTone(800, 0.1, 0.3); // Core
-        playTone(1600, 0.1, 0.1); // Bright Octave
+        // Octave Power chord - full resonance
+        playTone(220, 0.4, 0.3); // A3 - low root
+        playTone(440, 0.4, 0.3); // A4 - octave
+        playTone(659.25, 0.4, 0.25); // E5 - fifth
         break;
       case "PLAY_GO":
         playTone(880, 0.2, 0.45); // A5 - bright start
         break;
       case "PLAY_REST":
-        playTone(440, 0.15, 0.3); // A4 - "duh"
-        setTimeout(() => playTone(329.63, 0.3, 0.4), 120); // E4 - "doom"
+        playChord([523.25, 659.25, 783.99], 1.2); // C5, E5, G5 - Zen Bell
         break;
       case "PLAY_FINISH":
         // Fanfare Arpeggio
