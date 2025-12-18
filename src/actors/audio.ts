@@ -38,7 +38,7 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     return ctx;
   };
 
-  const playTone = (freq: number, duration = 0.1, volume = 0.3) => {
+  const playTone = (freq: number, duration = 0.1, volume = 0.3, type: OscillatorType = "sine") => {
     if (isMuted) {
       return;
     }
@@ -52,12 +52,12 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
       const osc = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
 
-      osc.type = "sine";
+      osc.type = type;
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
       const now = audioCtx.currentTime;
       gainNode.gain.setValueAtTime(0, now);
-      gainNode.gain.linearRampToValueAtTime(volume, now + 0.02);
+      gainNode.gain.linearRampToValueAtTime(volume, now + 0.01);
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
 
       osc.connect(gainNode);
@@ -70,6 +70,13 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     }
   };
 
+  const playChord = (freqs: number[], duration = 1.0, volumes: number[] = []) => {
+    if (isMuted) return;
+    freqs.forEach((f, i) => {
+      playTone(f, duration, volumes[i] ?? 0.15 / (i + 1));
+    });
+  };
+
   receive((event) => {
     switch (event.type) {
       case "SET_MUTED":
@@ -79,22 +86,18 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
         break;
       case "PLAY_DOWN":
-        playTone(440, 0.06, 0.4); // A4 - short tick
+        playTone(150, 0.08, 0.4); // Deeper Tactile Click
         break;
       case "PLAY_UP":
-        playTone(440, 0.15, 0.5); // A4 - longer
+        playTone(800, 0.05, 0.3); // Sharper Tactile Click
         break;
       case "PLAY_LAST_DOWN":
-        // Octave Power chord - punchy with resonance
-        playTone(220, 0.25, 0.25); // A3 - low root
-        playTone(440, 0.25, 0.25); // A4 - octave
-        playTone(659.25, 0.25, 0.2); // E5 - fifth
+        playTone(100, 0.2, 0.5); // Resonant Thud
+        playTone(300, 0.15, 0.2, "triangle"); // Metallic ring
         break;
       case "PLAY_LAST_UP":
-        // Octave Power chord - full resonance
-        playTone(220, 0.4, 0.3); // A3 - low root
-        playTone(440, 0.4, 0.3); // A4 - octave
-        playTone(659.25, 0.4, 0.25); // E5 - fifth
+        playTone(800, 0.1, 0.3); // Core
+        playTone(1600, 0.1, 0.1); // Bright Octave
         break;
       case "PLAY_GO":
         playTone(880, 0.2, 0.45); // A5 - bright start
@@ -104,8 +107,10 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         setTimeout(() => playTone(329.63, 0.3, 0.4), 120); // E4 - "doom"
         break;
       case "PLAY_FINISH":
-        playTone(880, 0.15, 0.3); // A5
-        setTimeout(() => playTone(1108.73, 0.3, 0.4), 150); // C#6
+        // Fanfare Arpeggio
+        [440, 554.37, 659.25, 880].forEach((f, i) => {
+          setTimeout(() => playTone(f, 0.5, 0.25), i * 100);
+        });
         break;
       case "PLAY_COUNTDOWN_BEEP":
         playTone(880, 0.05, 0.3); // A5
