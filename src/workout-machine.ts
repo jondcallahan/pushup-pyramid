@@ -310,15 +310,9 @@ export const workoutMachine = setup({
                     subText: "reps",
                   },
                   after: {
-                    INITIAL_DELAY: [
-                      {
-                        guard: "isSingleRepSet",
-                        target: "lastDown",
-                      },
-                      {
-                        target: "down",
-                      },
-                    ],
+                    INITIAL_DELAY: {
+                      target: "down",
+                    },
                   },
                 },
                 down: {
