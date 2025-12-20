@@ -38,7 +38,12 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     return ctx;
   };
 
-  const playTone = (freq: number, duration = 0.1, volume = 0.3, type: OscillatorType = "sine") => {
+  const playTone = (
+    freq: number,
+    duration = 0.1,
+    volume = 0.3,
+    type: OscillatorType = "sine"
+  ) => {
     if (isMuted) {
       return;
     }
