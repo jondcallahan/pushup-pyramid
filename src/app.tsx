@@ -456,26 +456,30 @@ const PushUpPyramid = () => {
             </p>
           )}
 
-          {canSkipRest === true && (
-            <button
-              className="flex items-center gap-2 rounded-full bg-zinc-800 px-8 py-4 font-bold text-lg text-white shadow-lg transition-colors hover:bg-zinc-700 active:bg-zinc-600"
-              onClick={handleSkipRest}
-              type="button"
-            >
-              <SkipForward size={24} />
-              Skip Rest
-            </button>
-          )}
+          {(canSkipRest || canPause) && (
+            <div className="flex gap-3">
+              {canSkipRest === true && (
+                <button
+                  className="flex items-center gap-2 rounded-full bg-zinc-800 px-8 py-4 font-bold text-lg text-white shadow-lg transition-colors hover:bg-zinc-700 active:bg-zinc-600"
+                  onClick={handleSkipRest}
+                  type="button"
+                >
+                  <SkipForward size={24} />
+                  Skip Rest
+                </button>
+              )}
 
-          {canPause === true && (
-            <button
-              className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-8 py-4 font-bold text-lg text-zinc-300 shadow-lg transition-colors hover:bg-zinc-800 active:bg-zinc-800"
-              onClick={handleTogglePause}
-              type="button"
-            >
-              <Pause size={24} />
-              Pause
-            </button>
+              {canPause === true && (
+                <button
+                  className="flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-900 px-8 py-4 font-bold text-lg text-zinc-300 shadow-lg transition-colors hover:bg-zinc-800 active:bg-zinc-800"
+                  onClick={handleTogglePause}
+                  type="button"
+                >
+                  <Pause size={24} />
+                  Pause
+                </button>
+              )}
+            </div>
           )}
 
           {canResume === true && (
