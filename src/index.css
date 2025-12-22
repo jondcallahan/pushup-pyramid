@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans:
+    "Exo 2 Variable", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  --font-display: "Anton", ui-sans-serif, system-ui, sans-serif;
+}

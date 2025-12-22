@@ -1,3 +1,5 @@
+import "@fontsource-variable/exo-2";
+import "@fontsource/anton";
 import { Analytics } from "@vercel/analytics/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
