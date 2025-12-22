@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import LastRepSoundPreview from "./components/last-rep-sound-preview";
 import ShareModal from "./components/share-modal";
 import SoundStyleModal from "./components/sound-style-modal";
 import {
@@ -42,6 +43,9 @@ const PushUpPyramid = () => {
 
   // Sound style modal state
   const [showSoundStyleModal, setShowSoundStyleModal] = useState(false);
+
+  // Last rep sound preview modal state
+  const [showLastRepPreview, setShowLastRepPreview] = useState(false);
 
   // --- Derived State from Machine ---
   const status = (() => {
@@ -279,25 +283,34 @@ const PushUpPyramid = () => {
                 </div>
               </div>
 
-              {/* Sound Styles Preview */}
+              {/* Sound Design */}
               <div>
                 <span className="mb-2 block font-semibold text-sm text-zinc-400 uppercase tracking-wider">
                   Sound Design
                 </span>
-                <button
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500/20 via-amber-500/20 to-violet-500/20 py-4 font-bold text-white transition-all hover:from-sky-500/30 hover:via-amber-500/30 hover:to-violet-500/30"
-                  onClick={() => {
-                    closeSettings();
-                    setShowSoundStyleModal(true);
-                  }}
-                  type="button"
-                >
-                  <Music size={18} />
-                  Preview Sound Styles
-                </button>
-                <p className="mt-2 text-center text-xs text-zinc-500">
-                  Compare Apple, Sonos & Adobe approaches
-                </p>
+                <div className="space-y-2">
+                  <button
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-sky-500/20 py-4 font-bold text-white transition-all hover:from-rose-500/30 hover:to-sky-500/30"
+                    onClick={() => {
+                      closeSettings();
+                      setShowLastRepPreview(true);
+                    }}
+                    type="button"
+                  >
+                    <Music size={18} />
+                    Last Rep Sounds
+                  </button>
+                  <button
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-800 py-3 text-sm text-zinc-400 transition-all hover:bg-zinc-700 hover:text-white"
+                    onClick={() => {
+                      closeSettings();
+                      setShowSoundStyleModal(true);
+                    }}
+                    type="button"
+                  >
+                    All Sound Styles
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -554,6 +567,12 @@ const PushUpPyramid = () => {
       <SoundStyleModal
         isOpen={showSoundStyleModal}
         onClose={() => setShowSoundStyleModal(false)}
+      />
+
+      {/* Last Rep Sound Preview Modal */}
+      <LastRepSoundPreview
+        isOpen={showLastRepPreview}
+        onClose={() => setShowLastRepPreview(false)}
       />
     </div>
   );
