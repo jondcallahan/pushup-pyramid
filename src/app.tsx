@@ -2,6 +2,7 @@ import { useMachine } from "@xstate/react";
 import {
   ChevronDown,
   ChevronUp,
+  Music,
   Pause,
   Play,
   RefreshCw,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import ShareModal from "./components/share-modal";
+import SoundStyleModal from "./components/sound-style-modal";
 import {
   selectCompletedVolume,
   selectCountdownSeconds,
@@ -37,6 +39,9 @@ const PushUpPyramid = () => {
 
   // Share modal state
   const [showShareModal, setShowShareModal] = useState(false);
+
+  // Sound style modal state
+  const [showSoundStyleModal, setShowSoundStyleModal] = useState(false);
 
   // --- Derived State from Machine ---
   const status = (() => {
@@ -272,6 +277,27 @@ const PushUpPyramid = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Sound Styles Preview */}
+              <div>
+                <span className="mb-2 block font-semibold text-sm text-zinc-400 uppercase tracking-wider">
+                  Sound Design
+                </span>
+                <button
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500/20 via-amber-500/20 to-violet-500/20 py-4 font-bold text-white transition-all hover:from-sky-500/30 hover:via-amber-500/30 hover:to-violet-500/30"
+                  onClick={() => {
+                    closeSettings();
+                    setShowSoundStyleModal(true);
+                  }}
+                  type="button"
+                >
+                  <Music size={18} />
+                  Preview Sound Styles
+                </button>
+                <p className="mt-2 text-center text-xs text-zinc-500">
+                  Compare Apple, Sonos & Adobe approaches
+                </p>
               </div>
             </div>
 
@@ -522,6 +548,12 @@ const PushUpPyramid = () => {
         peakReps={context.peakReps}
         setsCompleted={context.pyramidSets.length}
         totalVolume={totalVolume}
+      />
+
+      {/* Sound Style Preview Modal */}
+      <SoundStyleModal
+        isOpen={showSoundStyleModal}
+        onClose={() => setShowSoundStyleModal(false)}
       />
     </div>
   );
