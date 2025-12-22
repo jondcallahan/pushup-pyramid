@@ -110,13 +110,13 @@ const PushUpPyramid = () => {
         return <Play className="ml-2" size={48} />;
       case "countdown":
         return (
-          <span className="font-bold font-display text-6xl">
+          <span className="font-bold font-display text-6xl tabular-nums">
             {countdownSeconds}
           </span>
         );
       case "rest":
         return (
-          <span className="font-display font-mono text-6xl">
+          <span className="font-display font-mono text-6xl tabular-nums">
             {restSeconds}s
           </span>
         );
@@ -235,7 +235,7 @@ const PushUpPyramid = () => {
                     <ChevronDown size={24} />
                   </button>
                   <div className="text-center">
-                    <div className="font-bold font-display text-4xl text-white">
+                    <div className="font-bold font-display text-4xl text-white tabular-nums">
                       {context.peakReps}
                     </div>
                     <div className="text-xs text-zinc-500">Peak Reps</div>
@@ -250,7 +250,7 @@ const PushUpPyramid = () => {
                     <ChevronUp size={24} />
                   </button>
                 </div>
-                <div className="mt-2 text-center font-medium text-lime-400 text-sm">
+                <div className="mt-2 text-center font-medium text-lime-400 text-sm tabular-nums">
                   Total Volume: {totalVolume} Push-ups
                 </div>
               </div>
@@ -346,7 +346,7 @@ const PushUpPyramid = () => {
             <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
               Set
             </div>
-            <div className="font-bold font-display text-3xl text-white">
+            <div className="font-bold font-display text-3xl text-white tabular-nums">
               {currentTargetReps || "-"}
             </div>
           </div>
@@ -354,7 +354,7 @@ const PushUpPyramid = () => {
             <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
               Volume
             </div>
-            <div className="font-bold font-display text-3xl">
+            <div className="font-bold font-display text-3xl tabular-nums">
               <span className="text-white">{completedVolume}</span>
               <span className="text-zinc-500">/{totalVolume}</span>
             </div>
@@ -363,7 +363,7 @@ const PushUpPyramid = () => {
             <div className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
               Next
             </div>
-            <div className="font-bold font-display text-3xl text-zinc-500">
+            <div className="font-bold font-display text-3xl text-zinc-500 tabular-nums">
               {nextSetReps ?? "-"}
             </div>
           </div>
@@ -418,7 +418,7 @@ const PushUpPyramid = () => {
                 {getSubText()}
               </div>
               {status === "finished" && (
-                <div className="mt-2 font-bold text-white text-xl">
+                <div className="mt-2 font-bold text-white text-xl tabular-nums">
                   {totalVolume} Reps
                 </div>
               )}
