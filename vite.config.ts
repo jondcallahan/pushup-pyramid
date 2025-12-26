@@ -1,36 +1,38 @@
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import type { Plugin } from "vite";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 
-// Plugin to add preload links for font files
 function fontPreload(): Plugin {
   return {
     name: "font-preload",
     transformIndexHtml: {
       order: "post",
       handler(html, ctx) {
-        // Find all .woff2 font files in the bundle
-        const fontFiles: string[] = [];
+        const preloads: string[] = [];
+
         if (ctx.bundle) {
-          for (const [fileName] of Object.entries(ctx.bundle)) {
-            if (fileName.endsWith(".woff2")) {
-              fontFiles.push(fileName);
+          // Production: scan bundle for .woff2 files
+          for (const fileName of Object.keys(ctx.bundle)) {
+            if (
+              fileName.endsWith(".woff2") &&
+              fileName.includes("latin") &&
+              !fileName.includes("latin-ext")
+            ) {
+              preloads.push(
+                `<link rel="preload" href="/${fileName}" as="font" type="font/woff2" crossorigin>`
+              );
             }
           }
         }
 
-        // Generate preload links for Latin fonts (most important)
-        const preloadLinks = fontFiles
-          .filter((f) => f.includes("latin") && !f.includes("latin-ext"))
-          .map(
-            (f) =>
-              `<link rel="preload" href="/${f}" as="font" type="font/woff2" crossorigin>`
-          )
-          .join("\n    ");
+        if (preloads.length === 0) {
+          return html;
+        }
 
-        // Inject after <head>
-        return html.replace("<head>", `<head>\n    ${preloadLinks}`);
+        return html.replace(
+          "</head>",
+          `    ${preloads.join("\n    ")}\n  </head>`
+        );
       },
     },
   };
