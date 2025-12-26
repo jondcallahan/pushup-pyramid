@@ -1,3 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Match original app font stack */
+* {
+  font-family: 'Geist', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+/* Tabular nums for consistent number widths */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
