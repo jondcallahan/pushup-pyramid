@@ -293,18 +293,18 @@ export default function App() {
         <View className="flex-row w-full max-w-xl gap-3">
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
             <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">SET</Text>
-            <Text className="text-3xl font-bold font-display text-white tabular-nums">{currentTargetReps || "-"}</Text>
+            <Text className="text-3xl font-bold text-white tabular-nums">{currentTargetReps || "-"}</Text>
           </View>
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
             <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">VOLUME</Text>
-            <Text className="text-3xl font-bold font-display tabular-nums">
+            <Text className="text-3xl font-bold tabular-nums">
               <Text className="text-white">{completedVolume}</Text>
               <Text className="text-zinc-500">/{totalVolume}</Text>
             </Text>
           </View>
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
             <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">NEXT</Text>
-            <Text className="text-3xl font-bold font-display text-zinc-500 tabular-nums">{nextSetReps ?? "-"}</Text>
+            <Text className="text-3xl font-bold text-zinc-500 tabular-nums">{nextSetReps ?? "-"}</Text>
           </View>
         </View>
 
