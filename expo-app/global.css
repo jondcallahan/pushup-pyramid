@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Web-specific styles for full-screen layout */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #09090b;
+  overflow: hidden;
+}
+
+/* Ensure React Native Web flex containers work properly */
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* All divs inside root need to expand */
+#root > div,
+#root > div > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+/* Make sure SafeAreaView expands */
+#root > div:first-child {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Custom font loading */
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;700;900&display=swap');
+
