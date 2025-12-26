@@ -20,7 +20,6 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
-  useWindowDimensions,
   View,
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
@@ -52,7 +51,6 @@ const strokeColors: Record<string, string> = {
 export default function App() {
   const [state, send] = useMachine(workoutMachine);
   const { context } = state;
-  const { width } = useWindowDimensions();
 
   const showSettings = state.matches({ settings: "open" });
   const openSettings = () => send({ type: "OPEN_SETTINGS" });
@@ -98,8 +96,8 @@ export default function App() {
   const handleSetPeak = (peak: number) => send({ type: "SET_PEAK", peak });
   const handleSetTempo = (tempoMs: number) => send({ type: "SET_TEMPO", tempoMs });
 
-  // SVG circle config
-  const size = Math.min(280, width - 48);
+  // SVG circle config - match original at 300px
+  const size = 300;
   const strokeWidth = 12;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -294,19 +292,19 @@ export default function App() {
         {/* Stats Row */}
         <View className="flex-row w-full max-w-xl gap-3">
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
-            <Text className="text-xs font-bold text-zinc-500 tracking-widest">SET</Text>
-            <Text className="text-3xl font-bold text-white tabular-nums">{currentTargetReps || "-"}</Text>
+            <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">SET</Text>
+            <Text className="text-3xl font-bold font-display text-white tabular-nums">{currentTargetReps || "-"}</Text>
           </View>
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
-            <Text className="text-xs font-bold text-zinc-500 tracking-widest">VOLUME</Text>
-            <Text className="text-3xl font-bold tabular-nums">
+            <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">VOLUME</Text>
+            <Text className="text-3xl font-bold font-display tabular-nums">
               <Text className="text-white">{completedVolume}</Text>
               <Text className="text-zinc-500">/{totalVolume}</Text>
             </Text>
           </View>
           <View className="flex-1 items-center justify-center p-3 rounded-2xl bg-zinc-900/50 border border-white/5">
-            <Text className="text-xs font-bold text-zinc-500 tracking-widest">NEXT</Text>
-            <Text className="text-3xl font-bold text-zinc-500 tabular-nums">{nextSetReps ?? "-"}</Text>
+            <Text className="text-[10px] font-bold text-zinc-500 tracking-widest mb-1">NEXT</Text>
+            <Text className="text-3xl font-bold font-display text-zinc-500 tabular-nums">{nextSetReps ?? "-"}</Text>
           </View>
         </View>
 
