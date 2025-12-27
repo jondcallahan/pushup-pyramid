@@ -15,16 +15,13 @@ const ShareCard = ({
   date,
   ref,
 }: ShareCardProps) => {
-  const formattedDate = date
-    .toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-    .toUpperCase();
+  const formattedDate = date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
-  // Rank based on volume
+  // Rank based on volume - keeping the logic but styling it cleanly
   const getRank = () => {
     if (totalVolume >= 200) {
       return { title: "HEAVYWEIGHT", stars: 5 };
@@ -45,157 +42,75 @@ const ShareCard = ({
 
   return (
     <div
-      className="relative h-[520px] w-[390px] overflow-hidden"
+      className="relative flex h-[520px] w-[390px] flex-col items-center justify-between overflow-hidden bg-zinc-950 p-8 font-sans text-zinc-100"
       ref={ref}
       style={{
-        background: "#1a1814",
-        fontFamily: "system-ui, sans-serif",
+        backgroundColor: "#09090b", // zinc-950
       }}
     >
-      {/* Worn paper texture overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
+      {/* Ambient backgrounds/glows */}
+      <div className="absolute top-0 left-0 h-40 w-full bg-gradient-to-b from-zinc-900 to-transparent opacity-50" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-lime-500/5 blur-3xl" />
+      <div className="absolute bottom-0 right-0 h-64 w-64 translate-x-1/3 translate-y-1/3 rounded-full bg-lime-500/10 blur-3xl" />
 
-      {/* Diagonal corner cuts */}
-      <div
-        className="absolute top-0 right-0 h-20 w-20"
-        style={{
-          background: "linear-gradient(135deg, transparent 50%, #c9362c 50%)",
-        }}
-      />
-      <div
-        className="absolute bottom-0 left-0 h-20 w-20"
-        style={{
-          background: "linear-gradient(-45deg, transparent 50%, #c9362c 50%)",
-        }}
-      />
-
-      {/* Main border */}
-      <div className="absolute inset-3 border-2 border-[#c9362c]" />
-      <div className="absolute inset-4 border border-[#c9362c]/30" />
-
-      {/* Content */}
-      <div className="relative z-10 flex h-full flex-col p-7">
-        {/* Top banner */}
-        <div className="mb-2 text-center">
-          <div
-            className="inline-block bg-[#c9362c] px-6 py-1 font-black text-[#1a1814] text-[10px] tracking-[0.4em]"
-            style={{
-              clipPath: "polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
-            }}
-          >
-            OFFICIAL RECORD
-          </div>
-        </div>
-
-        {/* Date */}
-        <div className="mb-4 text-center text-[#8b8579] text-[10px] tracking-[0.3em]">
+      {/* Header */}
+      <div className="relative z-10 mt-4 flex w-full flex-col items-center gap-2">
+        <div className="font-medium text-xs text-zinc-500 uppercase tracking-widest">
           {formattedDate}
         </div>
+        <h1 className="flex items-center gap-2 font-bold text-2xl text-white tracking-tight">
+          <div className="h-2 w-2 rounded-full bg-lime-500" />
+          PYRAMID PUSH
+        </h1>
+      </div>
 
-        {/* Main title */}
-        <div className="mb-1 text-center">
-          <h1
-            className="text-5xl text-[#f5f0e8] leading-none tracking-tight"
+      {/* Center Stats */}
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center gap-8">
+        <div className="flex flex-col items-center">
+          <span className="mb-2 font-medium text-sm text-zinc-500 uppercase tracking-wider">
+            Total Volume
+          </span>
+          <span
+            className="font-black text-9xl text-white leading-none tracking-tighter"
             style={{
-              fontFamily: "Impact, Haettenschweiler, sans-serif",
-              textShadow: "3px 3px 0 #c9362c",
+              textShadow: "0 4px 20px rgba(0,0,0,0.5)",
             }}
           >
-            PYRAMID
-          </h1>
-          <h2
-            className="-mt-1 text-3xl text-[#c9362c] tracking-[0.2em]"
-            style={{ fontFamily: "Impact, Haettenschweiler, sans-serif" }}
-          >
-            PUSH
-          </h2>
+            {totalVolume}
+          </span>
         </div>
 
-        {/* Decorative line */}
-        <div className="my-3 flex items-center justify-center gap-3">
-          <div className="h-px w-12 bg-[#c9362c]" />
-          <div className="h-2 w-2 rotate-45 border border-[#c9362c]" />
-          <div className="h-px w-12 bg-[#c9362c]" />
-        </div>
-
-        {/* THE BIG NUMBER */}
-        <div className="-mt-2 flex flex-1 flex-col items-center justify-center">
-          <div className="mb-1 text-[#8b8579] text-xs tracking-[0.5em]">
-            TOTAL REPS
-          </div>
-          <div className="relative">
-            <span
-              className="font-black text-[#f5f0e8] text-[120px] leading-none"
-              style={{
-                fontFamily: "Impact, Haettenschweiler, sans-serif",
-                textShadow: "4px 4px 0 #c9362c, 8px 8px 0 rgba(0,0,0,0.3)",
-                letterSpacing: "-0.02em",
-              }}
-            >
-              {totalVolume}
-            </span>
-          </div>
-
-          {/* Rank badge */}
-          <div className="mt-2 flex flex-col items-center">
-            <div className="mb-1 flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  className={`text-lg ${star <= rank.stars ? "text-[#c9362c]" : "text-[#3d3a35]"}`}
-                  key={`star-${star}`}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-            <div
-              className="text-[#f5f0e8] text-sm tracking-[0.3em]"
-              style={{ fontFamily: "Impact, Haettenschweiler, sans-serif" }}
-            >
-              {rank.title}
-            </div>
-          </div>
-        </div>
-
-        {/* Stats row - fight card style */}
-        <div className="my-2 border-[#c9362c]/50 border-t border-b py-4">
-          <div className="flex justify-around text-center">
-            <div>
-              <div
-                className="text-3xl text-[#f5f0e8]"
-                style={{ fontFamily: "Impact, Haettenschweiler, sans-serif" }}
+        {/* Rank Badge */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex gap-1.5 text-lime-500">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={`star-${star}`}
+                className={`text-2xl ${star <= rank.stars ? "opacity-100" : "text-zinc-800 opacity-100"}`}
               >
-                {peakReps}
-              </div>
-              <div className="mt-1 text-[#8b8579] text-[9px] tracking-[0.2em]">
-                PEAK
-              </div>
-            </div>
-            <div className="w-px bg-[#c9362c]/30" />
-            <div>
-              <div
-                className="text-3xl text-[#f5f0e8]"
-                style={{ fontFamily: "Impact, Haettenschweiler, sans-serif" }}
-              >
-                {setsCompleted}
-              </div>
-              <div className="mt-1 text-[#8b8579] text-[9px] tracking-[0.2em]">
-                SETS
-              </div>
-            </div>
+                ★
+              </span>
+            ))}
           </div>
+          <span className="rounded-full border border-zinc-800 bg-zinc-900 px-5 py-2 font-bold text-xs text-zinc-300 uppercase tracking-widest">
+            {rank.title}
+          </span>
         </div>
+      </div>
 
-        {/* Bottom tagline */}
-        <div className="mt-2 text-center">
-          <div className="text-[#8b8579] text-[10px] tracking-[0.4em]">
-            NO EXCUSES • NO SHORTCUTS • NO QUIT
-          </div>
+      {/* Footer Stats Grid */}
+      <div className="relative z-10 mb-4 grid w-full grid-cols-2 gap-4">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 backdrop-blur-md">
+          <span className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
+            Peak Reps
+          </span>
+          <span className="font-bold text-3xl text-white">{peakReps}</span>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/80 p-5 backdrop-blur-md">
+          <span className="mb-1 font-bold text-[10px] text-zinc-500 uppercase tracking-widest">
+            Sets Done
+          </span>
+          <span className="font-bold text-3xl text-white">{setsCompleted}</span>
         </div>
       </div>
     </div>
