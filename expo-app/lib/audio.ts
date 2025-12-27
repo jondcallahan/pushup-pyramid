@@ -1,8 +1,7 @@
+import { type AudioPlayer, createAudioPlayer } from "expo-audio";
+import { Platform } from "react-native";
 import { fromCallback } from "xstate";
 
-/**
- * Audio Events that can be sent to this actor
- */
 export type AudioEvent =
   | { type: "PLAY_TONE"; freq: number; duration?: number; volume?: number }
   | { type: "PLAY_DOWN" }
@@ -15,21 +14,14 @@ export type AudioEvent =
   | { type: "PLAY_COUNTDOWN_BEEP" }
   | { type: "SET_MUTED"; muted: boolean };
 
-/**
- * Audio Actor - Web Audio API implementation
- * Owns the AudioContext and handles all sound playback.
- * Receives events from the main machine to play sounds.
- * 
- * This works on both web browsers and React Native Web.
- */
-export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
-  // Web Audio API
+const createWebAudio = () => {
   const AudioContextClass =
-    typeof window !== 'undefined' 
+    typeof window !== "undefined"
       ? window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext
       : null;
-  
+
   let ctx: AudioContext | null = null;
   let isMuted = false;
 
@@ -55,7 +47,6 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     if (isMuted) {
       return;
     }
-
     const audioCtx = ensureContext();
     if (!audioCtx) {
       return;
@@ -83,55 +74,150 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
     }
   };
 
+  return {
+    playTone,
+    playDown: () => playTone(440, 0.06, 0.4),
+    playUp: () => playTone(800, 0.05, 0.3),
+    playLastDown: () => {
+      playTone(220, 0.25, 0.25);
+      playTone(440, 0.25, 0.25);
+      playTone(659.25, 0.25, 0.2);
+    },
+    playLastUp: () => {
+      playTone(220, 0.4, 0.3);
+      playTone(440, 0.4, 0.3);
+      playTone(659.25, 0.4, 0.25);
+    },
+    playGo: () => playTone(880, 0.2, 0.45),
+    playRest: () => {
+      playTone(440, 0.15, 0.3);
+      setTimeout(() => playTone(329.63, 0.3, 0.4), 120);
+    },
+    playFinish: () => {
+      [440, 554.37, 659.25, 880].forEach((f, i) => {
+        setTimeout(() => playTone(f, 0.5, 0.25), i * 100);
+      });
+    },
+    playCountdownBeep: () => playTone(880, 0.05, 0.3),
+    setMuted: (muted: boolean) => {
+      isMuted = muted;
+    },
+    cleanup: () => {
+      ctx?.close();
+    },
+  };
+};
+
+// Audio sources - require() must be called at module level for Metro bundler
+const audioSources = {
+  down: require("../assets/audio/down.wav"),
+  up: require("../assets/audio/up.wav"),
+  lastDown: require("../assets/audio/last_down.wav"),
+  lastUp: require("../assets/audio/last_up.wav"),
+  go: require("../assets/audio/go.wav"),
+  rest: require("../assets/audio/rest.wav"),
+  finish: require("../assets/audio/finish.wav"),
+  countdownBeep: require("../assets/audio/countdown_beep.wav"),
+};
+
+const createNativeAudio = () => {
+  let isMuted = false;
+
+  // Preload all audio players once
+  const players: Record<string, AudioPlayer> = {};
+
+  const initPlayers = () => {
+    for (const [key, source] of Object.entries(audioSources)) {
+      try {
+        players[key] = createAudioPlayer(source);
+      } catch (e) {
+        console.error(`Failed to create player for ${key}:`, e);
+      }
+    }
+  };
+
+  // Initialize immediately
+  initPlayers();
+
+  const playSound = (key: keyof typeof audioSources) => {
+    if (isMuted) {
+      return;
+    }
+    try {
+      const player = players[key];
+      if (player) {
+        // Seek to start and play (allows rapid re-triggering)
+        player.seekTo(0);
+        player.play();
+      }
+    } catch (e) {
+      console.error("Audio error", e);
+    }
+  };
+
+  return {
+    playTone: () => playSound("countdownBeep"),
+    playDown: () => playSound("down"),
+    playUp: () => playSound("up"),
+    playLastDown: () => playSound("lastDown"),
+    playLastUp: () => playSound("lastUp"),
+    playGo: () => playSound("go"),
+    playRest: () => playSound("rest"),
+    playFinish: () => playSound("finish"),
+    playCountdownBeep: () => playSound("countdownBeep"),
+    setMuted: (muted: boolean) => {
+      isMuted = muted;
+    },
+    cleanup: () => {
+      for (const player of Object.values(players)) {
+        player.release();
+      }
+    },
+  };
+};
+
+export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
+  const isWeb = Platform.OS === "web";
+  const audio = isWeb ? createWebAudio() : createNativeAudio();
+
   receive((event) => {
     switch (event.type) {
       case "SET_MUTED":
-        isMuted = event.muted;
+        audio.setMuted(event.muted);
         break;
       case "PLAY_TONE":
-        playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
+        audio.playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
         break;
       case "PLAY_DOWN":
-        playTone(440, 0.06, 0.4); // A4 - short tick
+        audio.playDown();
         break;
       case "PLAY_UP":
-        playTone(800, 0.05, 0.3); // Sharper Tactile Click
+        audio.playUp();
         break;
       case "PLAY_LAST_DOWN":
-        // Octave Power chord - punchy with resonance
-        playTone(220, 0.25, 0.25); // A3 - low root
-        playTone(440, 0.25, 0.25); // A4 - octave
-        playTone(659.25, 0.25, 0.2); // E5 - fifth
+        audio.playLastDown();
         break;
       case "PLAY_LAST_UP":
-        // Octave Power chord - full resonance
-        playTone(220, 0.4, 0.3); // A3 - low root
-        playTone(440, 0.4, 0.3); // A4 - octave
-        playTone(659.25, 0.4, 0.25); // E5 - fifth
+        audio.playLastUp();
         break;
       case "PLAY_GO":
-        playTone(880, 0.2, 0.45); // A5 - bright start
+        audio.playGo();
         break;
       case "PLAY_REST":
-        playTone(440, 0.15, 0.3); // A4 - "duh"
-        setTimeout(() => playTone(329.63, 0.3, 0.4), 120); // E4 - "doom"
+        audio.playRest();
         break;
       case "PLAY_FINISH":
-        // Fanfare Arpeggio
-        [440, 554.37, 659.25, 880].forEach((f, i) => {
-          setTimeout(() => playTone(f, 0.5, 0.25), i * 100);
-        });
+        audio.playFinish();
         break;
       case "PLAY_COUNTDOWN_BEEP":
-        playTone(880, 0.05, 0.3); // A5
+        audio.playCountdownBeep();
         break;
       default:
         break;
     }
   });
 
-  // Cleanup
   return () => {
-    ctx?.close();
+    audio.cleanup();
   };
 });
