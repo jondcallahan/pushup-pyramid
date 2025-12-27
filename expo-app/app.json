@@ -29,6 +29,7 @@
       "bundler": "metro",
       "output": "single",
       "backgroundColor": "#09090b"
-    }
+    },
+    "plugins": ["expo-audio"]
   }
 }
