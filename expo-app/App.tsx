@@ -8,6 +8,7 @@ import {
 } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 import { Icon } from "./components/icon";
+import ShareModal from "./components/share-modal";
 import {
   selectCompletedVolume,
   selectCountdownSeconds,
@@ -50,6 +51,7 @@ function AppContent() {
   const showSettings = state.matches({ settings: "open" });
   const openSettings = () => send({ type: "OPEN_SETTINGS" });
   const closeSettings = () => send({ type: "CLOSE_SETTINGS" });
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Derived state
   const status = (() => {
@@ -479,7 +481,10 @@ function AppContent() {
 
           {status === "finished" && (
             <View className="flex-row gap-4">
-              <Pressable className="flex-row items-center gap-2 rounded-full bg-purple-600 px-8 py-4 active:bg-purple-700">
+              <Pressable
+                className="flex-row items-center gap-2 rounded-full bg-purple-600 px-8 py-4 active:bg-purple-700"
+                onPress={() => setShowShareModal(true)}
+              >
                 <Text className="font-bold text-lg text-white">🎉 Share</Text>
               </Pressable>
               <Pressable
@@ -492,6 +497,15 @@ function AppContent() {
           )}
         </View>
       </ScrollView>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        peakReps={context.peakReps}
+        setsCompleted={context.pyramidSets.length}
+        totalVolume={totalVolume}
+      />
     </View>
   );
 }
