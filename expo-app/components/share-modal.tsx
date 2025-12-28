@@ -1,8 +1,6 @@
-import * as Sharing from "expo-sharing";
-import { toPng } from "html-to-image";
-import { useCallback, useRef, useState } from "react";
+import { useRef } from "react";
 import { Modal, Platform, Pressable, Text, View } from "react-native";
-import { captureRef } from "react-native-view-shot";
+import { useShareImage } from "../lib/use-share-image";
 import { Icon } from "./icon";
 import ShareCard from "./share-card";
 
@@ -22,95 +20,18 @@ const ShareModal = ({
   setsCompleted,
 }: ShareModalProps) => {
   const cardRef = useRef<View>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [showCopied, setShowCopied] = useState(false);
+  const { share, isGenerating, showCopied } = useShareImage(cardRef);
 
-  // Web: Generate image using html-to-image
-  const generateImageWeb = useCallback(async (): Promise<Blob | null> => {
-    // biome-ignore lint/suspicious/noExplicitAny: accessing DOM ref from RN web
-    const element = cardRef.current as any;
-    if (!element) return null;
+  const handleShare = async () => {
+    const result = await share({
+      text: `Just crushed ${totalVolume} push-ups! 💪🔥`,
+    });
 
-    try {
-      const dataUrl = await toPng(element, {
-        quality: 1,
-        pixelRatio: 2,
-        cacheBust: true,
-      });
-      const response = await fetch(dataUrl);
-      return await response.blob();
-    } catch (error) {
-      console.error("Error generating image:", error);
-      return null;
+    // Close modal after native share completes
+    if (Platform.OS !== "web" && result === "shared") {
+      onClose();
     }
-  }, []);
-
-  const handleShare = useCallback(async () => {
-    setIsGenerating(true);
-
-    try {
-      if (Platform.OS === "web") {
-        const blob = await generateImageWeb();
-        if (!blob) {
-          throw new Error("Failed to generate image");
-        }
-
-        const file = new File([blob], `pyramid-push-${Date.now()}.png`, {
-          type: "image/png",
-        });
-
-        // Check if native share is available and supports files
-        if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: "Pyramid Push Workout",
-            text: `Just crushed ${totalVolume} push-ups! 💪🔥`,
-          });
-        } else {
-          // Fallback: copy image to clipboard
-          try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": blob }),
-            ]);
-            setShowCopied(true);
-            setTimeout(() => setShowCopied(false), 2000);
-          } catch {
-            // If clipboard fails, download
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.download = `pyramid-push-${Date.now()}.png`;
-            link.href = url;
-            link.click();
-            URL.revokeObjectURL(url);
-          }
-        }
-      } else {
-        // Native: Use react-native-view-shot
-        if (!cardRef.current) return;
-
-        const uri = await captureRef(cardRef, {
-          format: "png",
-          quality: 1,
-          result: "tmpfile",
-        });
-
-        if (await Sharing.isAvailableAsync()) {
-          await Sharing.shareAsync(uri, {
-            mimeType: "image/png",
-            dialogTitle: "Share your workout",
-          });
-        }
-        // Close modal after native share completes
-        onClose();
-      }
-    } catch (error) {
-      if ((error as Error).name !== "AbortError") {
-        console.error("Share failed:", error);
-      }
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [totalVolume, generateImageWeb, onClose]);
+  };
 
   return (
     <Modal
