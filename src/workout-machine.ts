@@ -469,7 +469,7 @@ export const workoutMachine = setup({
         finished: {
           tags: ["finished", "configurable"],
           meta: {
-            strokeColor: "text-lime-400",
+            strokeColor: "text-fuchsia-400",
             mainContent: { type: "trophy" },
             subText: "GREAT JOB!",
           },
