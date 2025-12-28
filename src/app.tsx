@@ -290,7 +290,7 @@ const PushUpPyramid = () => {
       <div className="z-10 flex items-center justify-between bg-zinc-900 p-4 shadow-md">
         <h1 className="flex items-center gap-2 font-bold text-xl tracking-wide">
           <div
-            className={`h-3 w-3 rounded-full ${status === "working" ? "animate-pulse bg-lime-500" : "bg-slate-500"}`}
+            className={`h-3 w-3 rounded-full ${status === "working" ? "animate-pulse bg-lime-500" : "bg-zinc-600"}`}
           />
           PYRAMID PUSH
         </h1>
@@ -496,7 +496,7 @@ const PushUpPyramid = () => {
           {status === "finished" && (
             <div className="flex gap-3">
               <button
-                className="flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 font-bold text-lg text-white shadow-lg shadow-purple-500/25 transition-all hover:from-purple-500 hover:to-indigo-500 active:scale-95"
+                className="flex items-center gap-2 rounded-full bg-lime-500 px-8 py-4 font-bold text-lg text-zinc-950 shadow-lg shadow-lime-500/25 transition-all hover:bg-lime-400 active:scale-95"
                 onClick={() => setShowShareModal(true)}
                 type="button"
               >

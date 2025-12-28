@@ -118,24 +118,24 @@ const ShareModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl">
+      <div className="w-full max-w-md overflow-hidden rounded-3xl border border-zinc-700 bg-zinc-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-slate-800 border-b p-4">
+        <div className="flex items-center justify-between border-zinc-800 border-b p-4">
           <h2 className="flex items-center gap-2 font-bold text-lg text-white">
-            <Share2 className="text-[#c9362c]" size={20} />
+            <Share2 className="text-lime-500" size={20} />
             Share Your Workout
           </h2>
           <button
-            className="rounded-full p-2 transition-colors hover:bg-slate-800"
+            className="rounded-full p-2 transition-colors hover:bg-zinc-800"
             onClick={onClose}
             type="button"
           >
-            <X className="text-slate-400" size={20} />
+            <X className="text-zinc-400" size={20} />
           </button>
         </div>
 
         {/* Card Preview */}
-        <div className="flex justify-center bg-slate-950/50 p-4">
+        <div className="flex justify-center bg-zinc-950/50 p-4">
           <div className="origin-center scale-[0.85] transform overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10">
             <ShareCard
               date={new Date()}
@@ -150,7 +150,7 @@ const ShareModal = ({
         {/* Actions */}
         <div className="space-y-3 p-4">
           <button
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#c9362c] px-6 py-4 font-bold text-lg text-white transition-all hover:bg-[#a82d25] disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-lime-500 px-6 py-4 font-bold text-lg text-zinc-950 transition-all hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
             onClick={handleShare}
             type="button"
@@ -177,7 +177,7 @@ const ShareModal = ({
           </button>
 
           <button
-            className="flex w-full items-center justify-center gap-3 rounded-xl bg-slate-800 px-6 py-3 font-semibold text-white transition-all hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full items-center justify-center gap-3 rounded-xl bg-zinc-800 px-6 py-3 font-semibold text-white transition-all hover:bg-zinc-700 disabled:cursor-not-allowed disabled:opacity-70"
             disabled={isGenerating}
             onClick={handleDownload}
             type="button"
@@ -189,7 +189,7 @@ const ShareModal = ({
 
         {/* Tip */}
         <div className="px-4 pb-4">
-          <p className="text-center text-slate-500 text-xs">
+          <p className="text-center text-zinc-500 text-xs">
             Share your achievement on Instagram, Twitter, or send to friends!
           </p>
         </div>
