@@ -6,6 +6,7 @@ import {
   Play,
   RefreshCw,
   Settings,
+  Share2,
   SkipForward,
   Trophy,
   Volume2,
@@ -59,6 +60,10 @@ const iconMap = {
   x: {
     sf: "xmark",
     lucide: X,
+  },
+  share: {
+    sf: "square.and.arrow.up",
+    lucide: Share2,
   },
 } as const;
 
