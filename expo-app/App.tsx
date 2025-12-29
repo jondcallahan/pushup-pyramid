@@ -340,15 +340,15 @@ function AppContent() {
         <View className="w-full max-w-xl flex-row gap-3">
           <View className="flex-1 items-center justify-center rounded-2xl border border-white/10 bg-zinc-900/30 p-3 backdrop-blur-sm">
             <Text className="mb-1 font-bold text-[10px] text-zinc-500 tracking-widest">
-              SET
+              DOING
             </Text>
-            <Text className="font-bold text-3xl text-white tabular-nums">
+            <Text className={`font-bold text-3xl ${status !== "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}>
               {currentTargetReps || "-"}
             </Text>
           </View>
           <View className="flex-1 items-center justify-center rounded-2xl border border-white/10 bg-zinc-900/30 p-3 backdrop-blur-sm">
             <Text className="mb-1 font-bold text-[10px] text-zinc-500 tracking-widest">
-              VOLUME
+              TOTAL
             </Text>
             <Text className="font-bold text-2xl" numberOfLines={1}>
               <Text className="text-white">{completedVolume}</Text>
@@ -356,10 +356,10 @@ function AppContent() {
             </Text>
           </View>
           <View className="flex-1 items-center justify-center rounded-2xl border border-white/10 bg-zinc-900/30 p-3 backdrop-blur-sm">
-            <Text className="mb-1 font-bold text-[10px] text-zinc-500 tracking-widest">
-              NEXT
+            <Text className="mb-1 font-bold text-[10px] tracking-widest text-zinc-500">
+              UP NEXT
             </Text>
-            <Text className="font-bold text-3xl text-zinc-500 tabular-nums">
+            <Text className={`font-bold text-3xl ${status === "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}>
               {nextSetReps ?? "-"}
             </Text>
           </View>
