@@ -4,11 +4,11 @@
     "slug": "pyramid-push",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/pyramid-push-pro.png",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/pyramid-push-pro.png",
       "resizeMode": "contain",
       "backgroundColor": "#09090b"
     },
@@ -18,14 +18,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/pyramid-push-pro.png",
         "backgroundColor": "#09090b"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.pyramidpush.app"
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/pyramid-push-pro.png",
       "bundler": "metro",
       "output": "single",
       "backgroundColor": "#09090b"
