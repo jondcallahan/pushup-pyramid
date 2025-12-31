@@ -1,5 +1,6 @@
 import { assign, fromCallback, sendTo, setup } from "xstate";
 import { audioActor } from "./audio";
+import { initHealthKit, isHealthAvailable, saveWorkout } from "./health";
 import { wakeLockActor } from "./wake-lock";
 
 // --- Types ---
@@ -31,6 +32,8 @@ export type WorkoutContext = {
   // For smooth UI animation
   timerStartedAt: number;
   timerDuration: number;
+  // For Health sync
+  workoutStartedAt: number;
 };
 
 export type WorkoutEvent =
@@ -165,6 +168,23 @@ export const workoutMachine = setup({
     setTempo: assign({
       tempoMs: ({ event }) => (event as { tempoMs: number }).tempoMs,
     }),
+    markWorkoutStart: assign({
+      workoutStartedAt: () => Date.now(),
+    }),
+    saveToHealth: ({ context }) => {
+      if (!isHealthAvailable()) return;
+      
+      const totalReps = context.pyramidSets.reduce((a, b) => a + b, 0);
+      const durationMs = context.workoutStartedAt 
+        ? Date.now() - context.workoutStartedAt 
+        : 0;
+      
+      initHealthKit().then((initialized) => {
+        if (initialized) {
+          saveWorkout(totalReps, durationMs);
+        }
+      });
+    },
   },
   guards: {
     hasMoreReps: ({ context }) => {
@@ -206,6 +226,7 @@ export const workoutMachine = setup({
     restSecondsLeft: 0,
     timerStartedAt: 0,
     timerDuration: 0,
+    workoutStartedAt: 0,
   },
   // Audio actor at root level - persists across all states to avoid race conditions
   invoke: [{ id: "audioActor", src: "audio" }],
@@ -276,7 +297,7 @@ export const workoutMachine = setup({
                 mainContent: { type: "countdown" },
                 subText: "GET READY",
               },
-              entry: ["initCountdown", "sendPlayCountdownBeep"],
+              entry: ["initCountdown", "sendPlayCountdownBeep", "markWorkoutStart"],
               invoke: {
                 src: "ticker",
                 input: {
@@ -473,7 +494,7 @@ export const workoutMachine = setup({
             mainContent: { type: "trophy" },
             subText: "GREAT JOB!",
           },
-          entry: "sendPlayFinish",
+          entry: ["sendPlayFinish", "saveToHealth"],
           on: {
             RESET: {
               target: "idle",

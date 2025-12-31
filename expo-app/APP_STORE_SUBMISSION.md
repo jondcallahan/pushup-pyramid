@@ -42,8 +42,8 @@ The pyramid method is simple: start small, build to a peak, then work back down.
 HOW IT WORKS
 • Audio cues for every rep - just listen and push
 • Smart rest timers - short breaks when it's easy, longer when it's hard
+• Syncs with Apple Health - workouts logged automatically
 • Adjustable peak - start at 5 and work your way up to 10+
-• Track your volume - see your total reps add up
 
 NO EQUIPMENT. NO EXCUSES.
 Your floor. Your arms. That's it.

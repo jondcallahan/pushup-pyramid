@@ -297,11 +297,11 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
         </div>
       </div>
 
-      {/* Marketing text overlay */}
+      {/* Marketing text overlay - above stats */}
       <div
         style={{
           position: "absolute",
-          bottom: 200,
+          bottom: 320,
           left: 0,
           right: 0,
           textAlign: "center",
@@ -309,17 +309,17 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
       >
         <div
           style={{
-            fontSize: 48,
+            fontSize: 44,
             fontWeight: 800,
             color: COLORS.lime400,
             textTransform: "uppercase",
-            letterSpacing: 4,
+            letterSpacing: 3,
           }}
         >
           {screen === "idle" && "100 Push-ups. One Workout."}
           {screen === "working" && "Audio-guided reps"}
           {screen === "rest" && "Smart rest timers"}
-          {screen === "finished" && "Track your progress"}
+          {screen === "finished" && "Syncs with Apple Health"}
         </div>
       </div>
     </AbsoluteFill>
