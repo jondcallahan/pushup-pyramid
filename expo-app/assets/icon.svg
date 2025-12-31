@@ -1,0 +1,13 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#09090b"/>
+  
+  <!-- Left bar (medium height) -->
+  <rect x="198" y="395" width="175" height="340" rx="24" fill="#BEFF0A"/>
+  
+  <!-- Center bar (tallest) -->
+  <rect x="424" y="255" width="175" height="480" rx="24" fill="#BEFF0A"/>
+  
+  <!-- Right bar (medium height) -->
+  <rect x="650" y="395" width="175" height="340" rx="24" fill="#BEFF0A"/>
+</svg>
