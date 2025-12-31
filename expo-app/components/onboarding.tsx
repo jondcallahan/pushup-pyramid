@@ -50,6 +50,13 @@ const slides: SlideData[] = [
     description: "Audio cues for every rep. Get in position, close your eyes, and go.",
     highlight: "We count. You push.",
   },
+  {
+    title: "IT",
+    subtitle: "WORKS",
+    icon: "trophy",
+    description: "We didn't invent the pyramid. We just made it impossible to mess up.",
+    highlight: "Proven for 70+ years.",
+  },
 ];
 
 function Slide({ data, width }: { data: SlideData; width: number }) {
@@ -97,7 +104,7 @@ function Dot({ active }: { active: boolean }) {
   );
 }
 
-function PyramidBar({ height, active, delay }: { height: number; active: boolean; delay: number }) {
+function PyramidBar({ height, active }: { height: number; active: boolean }) {
   const maxHeight = 60;
   const targetHeight = active ? (height / 5) * maxHeight : 12;
 
@@ -118,13 +125,14 @@ function PyramidBar({ height, active, delay }: { height: number; active: boolean
   );
 }
 
-function PyramidVisual({ active }: { active: boolean }) {
+function PyramidVisual({ slideIndex }: { slideIndex: number }) {
   const bars = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+  const active = slideIndex % 2 === 1; // Bounce up on slides 1 and 3
 
   return (
     <View className="h-16 w-56 flex-row items-end justify-center gap-1">
       {bars.map((height, idx) => (
-        <PyramidBar key={idx} height={height} active={active} delay={idx * 50} />
+        <PyramidBar key={idx} height={height} active={active} />
       ))}
     </View>
   );
@@ -195,7 +203,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
       {/* Pyramid visual */}
       <View className="items-center pb-6">
-        <PyramidVisual active={activeIndex === 1} />
+        <PyramidVisual slideIndex={activeIndex} />
       </View>
 
       {/* Bottom controls */}

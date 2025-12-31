@@ -1,84 +1,84 @@
 import { SymbolView, type SymbolViewProps } from "expo-symbols";
 import {
-  Activity,
-  ChevronDown,
-  ChevronUp,
-  Dumbbell,
+  ArrowCounterClockwise,
+  CaretDown,
+  CaretUp,
+  Barbell,
+  ChartLineUp,
   Pause,
   Play,
-  RefreshCw,
-  Settings,
-  Share2,
-  SkipForward,
-  TrendingUp,
+  FastForward,
+  Gear,
+  ShareNetwork,
+  SpeakerHigh,
+  SpeakerSlash,
   Trophy,
-  Volume2,
-  VolumeX,
+  Waveform,
   X,
-} from "lucide-react-native";
+} from "phosphor-react-native";
 import { Platform } from "react-native";
 
-// Map of icon names to SF Symbol names and Lucide components
+// Map of icon names to SF Symbol names and Phosphor components
 const iconMap = {
   "chevron-down": {
     sf: "chevron.down",
-    lucide: ChevronDown,
+    phosphor: CaretDown,
   },
   "chevron-up": {
     sf: "chevron.up",
-    lucide: ChevronUp,
+    phosphor: CaretUp,
   },
   dumbbell: {
     sf: "dumbbell.fill",
-    lucide: Dumbbell,
+    phosphor: Barbell,
   },
   "chart-up": {
     sf: "chart.line.uptrend.xyaxis",
-    lucide: TrendingUp,
+    phosphor: ChartLineUp,
   },
   waveform: {
     sf: "waveform.path",
-    lucide: Activity,
+    phosphor: Waveform,
   },
   pause: {
     sf: "pause.fill",
-    lucide: Pause,
+    phosphor: Pause,
   },
   play: {
     sf: "play.fill",
-    lucide: Play,
+    phosphor: Play,
   },
   refresh: {
     sf: "arrow.counterclockwise",
-    lucide: RefreshCw,
+    phosphor: ArrowCounterClockwise,
   },
   settings: {
     sf: "gearshape.fill",
-    lucide: Settings,
+    phosphor: Gear,
   },
   "skip-forward": {
     sf: "forward.fill",
-    lucide: SkipForward,
+    phosphor: FastForward,
   },
   trophy: {
     sf: "trophy.fill",
-    lucide: Trophy,
+    phosphor: Trophy,
   },
   "volume-on": {
     sf: "speaker.wave.2.fill",
-    lucide: Volume2,
+    phosphor: SpeakerHigh,
   },
   "volume-off": {
     sf: "speaker.slash.fill",
-    lucide: VolumeX,
+    phosphor: SpeakerSlash,
   },
   x: {
     sf: "xmark",
-    lucide: X,
+    phosphor: X,
   },
   share: {
     sf: "square.and.arrow.up",
-    lucide: Share2,
+    phosphor: ShareNetwork,
   },
 } as const;
 
@@ -113,6 +113,6 @@ export function Icon({
     );
   }
 
-  const LucideIcon = icon.lucide;
-  return <LucideIcon color={color} size={size} style={style} />;
+  const PhosphorIcon = icon.phosphor;
+  return <PhosphorIcon color={color} size={size} style={style} weight="bold" />;
 }

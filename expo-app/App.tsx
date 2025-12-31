@@ -7,6 +7,7 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
+import { BouncingTrophy } from "./components/bouncing-trophy";
 import { Icon } from "./components/icon";
 import { Onboarding } from "./components/onboarding";
 import ShareModal from "./components/share-modal";
@@ -177,7 +178,7 @@ function AppContent() {
           </Text>
         );
       case "trophy":
-        return <Icon color="#facc15" name="trophy" size={64} />;
+        return <BouncingTrophy />;
       case "text":
         return mainContent.text.split("\n").map((line, i) => (
           <Text
@@ -510,10 +511,11 @@ function AppContent() {
           {status === "finished" && (
             <View className="flex-row gap-4">
               <Pressable
-                className="flex-row items-center gap-2 rounded-full bg-purple-600 px-8 py-4 active:bg-purple-700"
+                className="flex-row items-center gap-2 rounded-full bg-lime-500 px-8 py-4 active:bg-lime-400"
                 onPress={() => setShowShareModal(true)}
               >
-                <Text className="font-bold text-lg text-white">🎉 Share</Text>
+                <Icon name="share" size={24} color="#09090b" />
+                <Text className="font-bold text-lg text-zinc-950">Share</Text>
               </Pressable>
               <Pressable
                 className="rounded-full bg-zinc-800 p-4 active:bg-zinc-700"
