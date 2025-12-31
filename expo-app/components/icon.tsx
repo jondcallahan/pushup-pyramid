@@ -1,13 +1,16 @@
 import { SymbolView, type SymbolViewProps } from "expo-symbols";
 import {
+  Activity,
   ChevronDown,
   ChevronUp,
+  Dumbbell,
   Pause,
   Play,
   RefreshCw,
   Settings,
   Share2,
   SkipForward,
+  TrendingUp,
   Trophy,
   Volume2,
   VolumeX,
@@ -24,6 +27,18 @@ const iconMap = {
   "chevron-up": {
     sf: "chevron.up",
     lucide: ChevronUp,
+  },
+  dumbbell: {
+    sf: "dumbbell.fill",
+    lucide: Dumbbell,
+  },
+  "chart-up": {
+    sf: "chart.line.uptrend.xyaxis",
+    lucide: TrendingUp,
+  },
+  waveform: {
+    sf: "waveform.path",
+    lucide: Activity,
   },
   pause: {
     sf: "pause.fill",

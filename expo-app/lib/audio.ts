@@ -1,4 +1,4 @@
-import { type AudioPlayer, createAudioPlayer } from "expo-audio";
+import { type AudioPlayer, createAudioPlayer, setAudioModeAsync } from "expo-audio";
 import { Platform } from "react-native";
 import { fromCallback } from "xstate";
 
@@ -122,6 +122,11 @@ const audioSources = {
 
 const createNativeAudio = () => {
   let isMuted = false;
+
+  // Configure audio mode for iOS - allows playback even in silent mode
+  setAudioModeAsync({
+    playsInSilentMode: true,
+  }).catch((e) => console.error("Failed to set audio mode:", e));
 
   // Preload all audio players once
   const players: Record<string, AudioPlayer> = {};
