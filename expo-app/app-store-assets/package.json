@@ -1,0 +1,26 @@
+{
+  "name": "app-store-assets",
+  "version": "1.0.0",
+  "description": "App Store screenshots and preview video",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:screenshots": "npm run render:67 && npm run render:65 && npm run render:55",
+    "render:67": "remotion still src/index.ts Screenshot-67-1 out/screenshots/67/1.png && remotion still src/index.ts Screenshot-67-2 out/screenshots/67/2.png && remotion still src/index.ts Screenshot-67-3 out/screenshots/67/3.png && remotion still src/index.ts Screenshot-67-4 out/screenshots/67/4.png",
+    "render:65": "remotion still src/index.ts Screenshot-65-1 out/screenshots/65/1.png && remotion still src/index.ts Screenshot-65-2 out/screenshots/65/2.png && remotion still src/index.ts Screenshot-65-3 out/screenshots/65/3.png && remotion still src/index.ts Screenshot-65-4 out/screenshots/65/4.png",
+    "render:55": "remotion still src/index.ts Screenshot-55-1 out/screenshots/55/1.png && remotion still src/index.ts Screenshot-55-2 out/screenshots/55/2.png && remotion still src/index.ts Screenshot-55-3 out/screenshots/55/3.png && remotion still src/index.ts Screenshot-55-4 out/screenshots/55/4.png",
+    "render:video": "remotion render src/index.ts AppPreview-67 out/preview.mp4",
+    "render:all": "npm run render:screenshots && npm run render:video"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@remotion/bundler": "^4.0.397",
+    "@remotion/cli": "^4.0.397",
+    "@types/react": "^19.2.7",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "remotion": "^4.0.397",
+    "typescript": "^5.9.3"
+  }
+}
