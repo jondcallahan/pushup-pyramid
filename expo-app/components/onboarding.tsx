@@ -167,11 +167,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / width);
+    if (index !== activeIndex) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     setActiveIndex(index);
   };
 
   const handleNext = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (activeIndex < slides.length - 1) {
       const nextIndex = activeIndex + 1;
       scrollViewRef.current?.scrollTo({ x: nextIndex * width, animated: true });
