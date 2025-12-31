@@ -18,9 +18,13 @@
     "@remotion/bundler": "^4.0.397",
     "@remotion/cli": "^4.0.397",
     "@types/react": "^19.2.7",
+    "autoprefixer": "^10.4.23",
+    "lucide-react": "^0.562.0",
+    "postcss": "^8.5.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "remotion": "^4.0.397",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3"
   }
 }

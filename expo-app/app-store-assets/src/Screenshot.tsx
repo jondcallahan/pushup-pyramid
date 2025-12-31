@@ -5,322 +5,213 @@ type ScreenType = "idle" | "working" | "rest" | "finished";
 
 const COLORS = {
   bg: "#09090b",
-  zinc900: "#18181b",
   zinc800: "#27272a",
   zinc700: "#3f3f46",
   zinc600: "#52525b",
+  zinc500: "#71717a",
   zinc400: "#a1a1aa",
   lime400: "#a3e635",
-  lime500: "#84cc16",
-  yellow400: "#facc15",
+  lime600: "#65a30d",
+  cyan400: "#22d3ee",
   fuchsia400: "#e879f9",
+  yellow400: "#facc15",
   white: "#ffffff",
 };
 
 const screenData: Record<
   ScreenType,
   {
-    title: string;
-    subtitle: string;
-    centerContent: React.ReactNode;
     strokeColor: string;
+    mainContent: React.ReactNode;
+    subText: string;
+    currentReps: number | string;
+    completedVolume: number;
+    totalVolume: number;
     pyramidHighlight: number;
-    reps: string;
-    volume: string;
+    progressPercent: number;
+    marketingText: string;
   }
 > = {
   idle: {
-    title: "Ready to push?",
-    subtitle: "Tap to start",
-    centerContent: (
-      <div style={{ fontSize: 120, color: COLORS.lime400 }}>▶</div>
-    ),
     strokeColor: COLORS.zinc600,
+    mainContent: (
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={COLORS.lime400} strokeWidth="2">
+        <polygon points="5 3 19 12 5 21 5 3" />
+      </svg>
+    ),
+    subText: "Tap to Start",
+    currentReps: "—",
+    completedVolume: 0,
+    totalVolume: 100,
     pyramidHighlight: -1,
-    reps: "100",
-    volume: "0 / 100",
+    progressPercent: 0,
+    marketingText: "100 Push-ups. One Workout.",
   },
   working: {
-    title: "Push!",
-    subtitle: "Set 5 of 9",
-    centerContent: (
-      <div style={{ fontSize: 200, fontWeight: 900, color: COLORS.white }}>
-        10
-      </div>
-    ),
     strokeColor: COLORS.lime400,
+    mainContent: <span style={{ fontSize: 140, fontWeight: 900, color: COLORS.white }}>10</span>,
+    subText: "5 / 10 reps",
+    currentReps: 10,
+    completedVolume: 35,
+    totalVolume: 100,
     pyramidHighlight: 4,
-    reps: "10",
-    volume: "35 / 100",
+    progressPercent: 35,
+    marketingText: "Audio-guided reps",
   },
   rest: {
-    title: "Rest",
-    subtitle: "Next: 9 reps",
-    centerContent: (
-      <div style={{ fontSize: 180, fontWeight: 900, color: COLORS.white }}>
-        12s
-      </div>
-    ),
-    strokeColor: "#38bdf8",
+    strokeColor: COLORS.cyan400,
+    mainContent: <span style={{ fontSize: 120, fontWeight: 900, color: COLORS.white }}>12s</span>,
+    subText: "REST & RECOVER",
+    currentReps: "—",
+    completedVolume: 45,
+    totalVolume: 100,
     pyramidHighlight: 5,
-    reps: "—",
-    volume: "45 / 100",
+    progressPercent: 45,
+    marketingText: "Smart rest timers",
   },
   finished: {
-    title: "Done!",
-    subtitle: "100 push-ups complete",
-    centerContent: (
-      <div style={{ fontSize: 120 }}>🏆</div>
-    ),
     strokeColor: COLORS.fuchsia400,
+    mainContent: <span style={{ fontSize: 100 }}>🏆</span>,
+    subText: "GREAT JOB!",
+    currentReps: 100,
+    completedVolume: 100,
+    totalVolume: 100,
     pyramidHighlight: -1,
-    reps: "100",
-    volume: "100 / 100",
+    progressPercent: 100,
+    marketingText: "Syncs with Apple Health",
   },
-};
-
-const PyramidBar: React.FC<{
-  height: number;
-  active: boolean;
-  completed: boolean;
-}> = ({ height, active, completed }) => {
-  const maxHeight = 60;
-  const barHeight = (height / 10) * maxHeight;
-  
-  let color = COLORS.zinc700;
-  if (completed) color = COLORS.lime500;
-  if (active) color = COLORS.lime400;
-
-  return (
-    <div
-      style={{
-        width: 28,
-        height: barHeight,
-        backgroundColor: color,
-        borderRadius: "6px 6px 0 0",
-        opacity: active || completed ? 1 : 0.5,
-      }}
-    />
-  );
-};
-
-const Pyramid: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) => {
-  const bars = [1, 2, 3, 4, 10, 4, 3, 2, 1]; // Peak at index 4
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "flex-end",
-        justifyContent: "center",
-        gap: 8,
-        height: 80,
-      }}
-    >
-      {bars.map((height, idx) => (
-        <PyramidBar
-          key={idx}
-          height={height}
-          active={idx === highlightIndex}
-          completed={idx < highlightIndex}
-        />
-      ))}
-    </div>
-  );
-};
-
-const CircularProgress: React.FC<{
-  progress: number;
-  strokeColor: string;
-  children: React.ReactNode;
-}> = ({ progress, strokeColor, children }) => {
-  const size = 500;
-  const strokeWidth = 20;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - progress * circumference;
-
-  return (
-    <div style={{ position: "relative", width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={COLORS.zinc800}
-          strokeWidth={strokeWidth}
-        />
-        {/* Progress circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-        />
-      </svg>
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  );
 };
 
 export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
-  const data = screenData[screen];
-  const progress =
-    screen === "idle"
-      ? 0
-      : screen === "finished"
-        ? 1
-        : screen === "working"
-          ? 0.35
-          : 0.45;
+  const config = screenData[screen];
+  // Pyramid for peak 10: 1,2,3,4,5,6,7,8,9,10,9,8,7,6,5,4,3,2,1
+  const pyramidSets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+  const peakReps = 10;
+
+  // SVG circle config - scaled up for screenshot
+  const size = 420;
+  const strokeWidth = 16;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const progress = config.progressPercent / 100;
 
   return (
     <AbsoluteFill
       style={{
         backgroundColor: COLORS.bg,
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        padding: 60,
+        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
         display: "flex",
         flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 60,
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          paddingTop: 60,
-          paddingBottom: 40,
-        }}
-      >
-        <div>
-          <div
-            style={{
-              fontSize: 72,
-              fontWeight: 800,
-              color: COLORS.white,
-            }}
-          >
-            {data.title}
-          </div>
-          <div
-            style={{
-              fontSize: 36,
-              color: COLORS.zinc400,
-              marginTop: 8,
-            }}
-          >
-            {data.subtitle}
-          </div>
-        </div>
+      {/* Circular Progress */}
+      <div style={{ position: "relative", marginBottom: 40 }}>
+        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={COLORS.zinc800}
+            strokeWidth={strokeWidth}
+          />
+          {/* Progress circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={config.strokeColor}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference - progress * circumference}
+          />
+        </svg>
+        {/* Center content */}
         <div
           style={{
-            width: 60,
-            height: 60,
-            borderRadius: 30,
-            backgroundColor: COLORS.zinc800,
+            position: "absolute",
+            inset: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          <div style={{ fontSize: 28, color: COLORS.zinc400 }}>⚙</div>
+          {config.mainContent}
         </div>
       </div>
 
-      {/* Main content - circular progress */}
+      {/* Status text */}
+      <div style={{ fontSize: 36, color: COLORS.zinc400, marginBottom: 50 }}>
+        {config.subText}
+      </div>
+
+      {/* Pyramid visualization */}
       <div
         style={{
-          flex: 1,
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-end",
           justifyContent: "center",
+          gap: 6,
+          height: 80,
+          marginBottom: 50,
         }}
       >
-        <CircularProgress progress={progress} strokeColor={data.strokeColor}>
-          {data.centerContent}
-        </CircularProgress>
+        {pyramidSets.map((reps, index) => {
+          const heightPercent = (reps / peakReps) * 100;
+          const isCompleted = index < config.pyramidHighlight;
+          const isCurrent = index === config.pyramidHighlight;
+
+          let bgColor = COLORS.zinc700;
+          if (isCurrent) bgColor = COLORS.lime400;
+          else if (isCompleted) bgColor = COLORS.lime600;
+
+          return (
+            <div
+              key={index}
+              style={{
+                width: 16,
+                height: `${heightPercent}%`,
+                backgroundColor: bgColor,
+                borderRadius: "4px 4px 0 0",
+              }}
+            />
+          );
+        })}
       </div>
 
-      {/* Pyramid */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          paddingBottom: 60,
-        }}
-      >
-        <Pyramid highlightIndex={data.pyramidHighlight} />
-      </div>
-
-      {/* Bottom stats */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          paddingBottom: 80,
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
+      {/* Stats */}
+      <div style={{ display: "flex", gap: 120, textAlign: "center", marginBottom: 60 }}>
+        <div>
           <div style={{ fontSize: 56, fontWeight: 700, color: COLORS.white }}>
-            {data.reps}
+            {config.currentReps}
           </div>
-          <div style={{ fontSize: 28, color: COLORS.zinc400 }}>REPS</div>
+          <div style={{ fontSize: 20, color: COLORS.zinc500 }}>REPS</div>
         </div>
-        <div style={{ textAlign: "center" }}>
+        <div>
           <div style={{ fontSize: 56, fontWeight: 700, color: COLORS.white }}>
-            {data.volume}
+            {config.completedVolume} / {config.totalVolume}
           </div>
-          <div style={{ fontSize: 28, color: COLORS.zinc400 }}>VOLUME</div>
+          <div style={{ fontSize: 20, color: COLORS.zinc500 }}>VOLUME</div>
         </div>
       </div>
 
-      {/* Marketing text overlay - above stats */}
+      {/* Marketing text */}
       <div
         style={{
-          position: "absolute",
-          bottom: 320,
-          left: 0,
-          right: 0,
-          textAlign: "center",
+          fontSize: 38,
+          fontWeight: 800,
+          color: COLORS.lime400,
+          textTransform: "uppercase",
+          letterSpacing: 3,
         }}
       >
-        <div
-          style={{
-            fontSize: 44,
-            fontWeight: 800,
-            color: COLORS.lime400,
-            textTransform: "uppercase",
-            letterSpacing: 3,
-          }}
-        >
-          {screen === "idle" && "100 Push-ups. One Workout."}
-          {screen === "working" && "Audio-guided reps"}
-          {screen === "rest" && "Smart rest timers"}
-          {screen === "finished" && "Syncs with Apple Health"}
-        </div>
+        {config.marketingText}
       </div>
     </AbsoluteFill>
   );
