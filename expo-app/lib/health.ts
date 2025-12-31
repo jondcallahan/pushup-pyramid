@@ -1,17 +1,15 @@
 import { Platform } from "react-native";
-import type { HealthActivity } from "react-native-health";
 
 // Apple Health integration for iOS
 // Saves workout as "Functional Strength Training" with push-up count
 
-let AppleHealthKit: typeof import("react-native-health").default | null = null;
-let HealthActivityEnum: typeof HealthActivity | null = null;
+// Dynamic import to avoid crash on non-iOS platforms
+// biome-ignore lint/suspicious/noExplicitAny: dynamic require for platform-specific module
+let AppleHealthKit: any = null;
 
 if (Platform.OS === "ios") {
   try {
-    const healthModule = require("react-native-health");
-    AppleHealthKit = healthModule.default;
-    HealthActivityEnum = healthModule.HealthActivity;
+    AppleHealthKit = require("react-native-health").default;
   } catch {
     console.log("Apple Health not available");
   }
@@ -19,8 +17,8 @@ if (Platform.OS === "ios") {
 
 const HEALTH_PERMISSIONS = {
   permissions: {
-    read: [] as string[],
-    write: ["Workout"] as string[],
+    read: [],
+    write: ["Workout"],
   },
 };
 
@@ -28,17 +26,14 @@ export async function initHealthKit(): Promise<boolean> {
   if (!AppleHealthKit) return false;
 
   return new Promise((resolve) => {
-    AppleHealthKit.initHealthKit(
-      HEALTH_PERMISSIONS as Parameters<typeof AppleHealthKit.initHealthKit>[0],
-      (error: string) => {
-        if (error) {
-          console.log("HealthKit init error:", error);
-          resolve(false);
-        } else {
-          resolve(true);
-        }
+    AppleHealthKit.initHealthKit(HEALTH_PERMISSIONS, (error: string) => {
+      if (error) {
+        console.log("HealthKit init error:", error);
+        resolve(false);
+      } else {
+        resolve(true);
       }
-    );
+    });
   });
 }
 
@@ -54,7 +49,7 @@ export async function saveWorkout(
   return new Promise((resolve) => {
     AppleHealthKit.saveWorkout(
       {
-        type: HealthActivityEnum?.FunctionalStrengthTraining ?? ("FunctionalStrengthTraining" as unknown as HealthActivity),
+        type: "FunctionalStrengthTraining", // Maps to HKWorkoutActivityType
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       },
