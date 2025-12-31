@@ -8,7 +8,9 @@ import {
 } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 import { Icon } from "./components/icon";
+import { Onboarding } from "./components/onboarding";
 import ShareModal from "./components/share-modal";
+import { useAppStore } from "./lib/store";
 import {
   selectCompletedVolume,
   selectCountdownSeconds,
@@ -36,9 +38,21 @@ const strokeColors: Record<string, string> = {
 
 // Main app wrapped in SafeAreaProvider
 export default function App() {
+  const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
+  const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding);
+
+  // Sync with persisted state (handles hydration)
+  useEffect(() => {
+    setShowOnboarding(!hasSeenOnboarding);
+  }, [hasSeenOnboarding]);
+
   return (
     <SafeAreaProvider>
-      <AppContent />
+      {showOnboarding ? (
+        <Onboarding onComplete={() => setShowOnboarding(false)} />
+      ) : (
+        <AppContent />
+      )}
     </SafeAreaProvider>
   );
 }
@@ -279,6 +293,20 @@ function AppContent() {
                 Done
               </Text>
             </Pressable>
+
+            {__DEV__ && (
+              <Pressable
+                className="mt-4 w-full rounded-xl border border-zinc-700 py-3"
+                onPress={() => {
+                  useAppStore.setState({ hasSeenOnboarding: false });
+                  closeSettings();
+                }}
+              >
+                <Text className="text-center text-sm text-zinc-500">
+                  Reset Onboarding (Dev)
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       </Modal>
