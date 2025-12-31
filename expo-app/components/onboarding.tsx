@@ -8,6 +8,7 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -26,6 +27,10 @@ interface SlideData {
   icon: IconName;
   description: string;
   highlight?: string;
+  quote?: {
+    text: string;
+    author: string;
+  };
 }
 
 const slides: SlideData[] = [
@@ -56,6 +61,10 @@ const slides: SlideData[] = [
     icon: "trophy",
     description: "We didn't invent the pyramid. We just made it impossible to mess up.",
     highlight: "Proven for 70+ years.",
+    quote: {
+      text: "There are no shortcuts—everything is reps, reps, reps.",
+      author: "Arnold Schwarzenegger",
+    },
   },
 ];
 
@@ -82,6 +91,16 @@ function Slide({ data, width }: { data: SlideData; width: number }) {
           <View className="mt-4 rounded-full bg-zinc-800 px-4 py-2">
             <Text className="font-mono text-sm text-lime-400">
               {data.highlight}
+            </Text>
+          </View>
+        )}
+        {data.quote && (
+          <View className="mt-6 max-w-xs">
+            <Text className="text-center text-base italic text-zinc-500">
+              "{data.quote.text}"
+            </Text>
+            <Text className="mt-2 text-center text-sm font-semibold text-zinc-600">
+              — {data.quote.author}
             </Text>
           </View>
         )}
@@ -152,6 +171,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   };
 
   const handleNext = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (activeIndex < slides.length - 1) {
       const nextIndex = activeIndex + 1;
       scrollViewRef.current?.scrollTo({ x: nextIndex * width, animated: true });
