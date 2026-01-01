@@ -52,13 +52,19 @@ export default function App() {
 
   // Request HealthKit permissions on app startup (once)
   useEffect(() => {
+    console.log("🏥 HealthKit check:", {
+      hasRequestedHealthKit,
+      isAvailable: isHealthAvailable(),
+    });
     if (!hasRequestedHealthKit && isHealthAvailable()) {
+      console.log("🏥 Requesting HealthKit permissions...");
       initHealthKit()
-        .then(() => {
+        .then((success) => {
+          console.log("🏥 HealthKit init result:", success);
           setHealthKitRequested();
         })
         .catch((error) => {
-          console.log("Failed to initialize HealthKit:", error);
+          console.log("🏥 Failed to initialize HealthKit:", error);
           // Still mark as requested so we don't spam
           setHealthKitRequested();
         });

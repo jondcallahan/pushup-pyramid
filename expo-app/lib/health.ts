@@ -23,14 +23,17 @@ const HEALTH_PERMISSIONS = {
 };
 
 export async function initHealthKit(): Promise<boolean> {
+  console.log("🏥 initHealthKit called, AppleHealthKit:", !!AppleHealthKit);
   if (!AppleHealthKit) return false;
 
   return new Promise((resolve) => {
+    console.log("🏥 Calling AppleHealthKit.initHealthKit...");
     AppleHealthKit.initHealthKit(HEALTH_PERMISSIONS, (error: string) => {
       if (error) {
-        console.log("HealthKit init error:", error);
+        console.log("🏥 HealthKit init error:", error);
         resolve(false);
       } else {
+        console.log("🏥 HealthKit init SUCCESS");
         resolve(true);
       }
     });
