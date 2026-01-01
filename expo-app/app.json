@@ -38,6 +38,6 @@
       "output": "single",
       "backgroundColor": "#09090b"
     },
-    "plugins": ["expo-audio", "react-native-health"]
+    "plugins": ["expo-audio", "./plugins/withHealthKit"]
   }
 }
