@@ -52,12 +52,16 @@ const storage: StateStorage = {
 
 interface AppState {
   hasSeenOnboarding: boolean;
+  hasRequestedHealthKit: boolean;
+  setHealthKitRequested: () => void;
 }
 
 export const useAppStore = create<AppState>()(
   persist(
-    (): AppState => ({
+    (set): AppState => ({
       hasSeenOnboarding: false,
+      hasRequestedHealthKit: false,
+      setHealthKitRequested: () => set({ hasRequestedHealthKit: true }),
     }),
     {
       name: STORAGE_KEY,
