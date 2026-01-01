@@ -120,40 +120,40 @@ const audioSources = {
   countdownBeep: require("../assets/audio/countdown_beep.wav"),
 };
 
+// Singleton storage for players
+let nativePlayers: Record<string, AudioPlayer> | null = null;
+
 const createNativeAudio = () => {
   let isMuted = false;
 
-  // Configure audio mode for iOS - allows playback even in silent mode
-  setAudioModeAsync({
-    playsInSilentMode: true,
-  }).catch((e) => console.error("Failed to set audio mode:", e));
+  // Initialize players once
+  if (!nativePlayers) {
+    // Configure audio mode for iOS - allows playback even in silent mode
+    setAudioModeAsync({
+      playsInSilentMode: true,
+    }).catch((e) => console.error("Failed to set audio mode:", e));
 
-  // Preload all audio players once
-  const players: Record<string, AudioPlayer> = {};
-
-  const initPlayers = () => {
+    nativePlayers = {};
     for (const [key, source] of Object.entries(audioSources)) {
       try {
-        players[key] = createAudioPlayer(source);
+        nativePlayers[key] = createAudioPlayer(source);
       } catch (e) {
         console.error(`Failed to create player for ${key}:`, e);
       }
     }
-  };
-
-  // Initialize immediately
-  initPlayers();
+  }
 
   const playSound = (key: keyof typeof audioSources) => {
     if (isMuted) {
       return;
     }
     try {
-      const player = players[key];
+      const player = nativePlayers?.[key];
       if (player) {
         // Seek to start and play (allows rapid re-triggering)
-        player.seekTo(0);
-        player.play();
+        // Note: seekTo returns a promise, but we want to play immediately
+        // chaining it handles potential async seek behavior better than sync call
+        player.seekTo(0).then(() => player.play());
       }
     } catch (e) {
       console.error("Audio error", e);
@@ -174,9 +174,7 @@ const createNativeAudio = () => {
       isMuted = muted;
     },
     cleanup: () => {
-      for (const player of Object.values(players)) {
-        player.release();
-      }
+      // Do not release players as they are global singletons
     },
   };
 };
