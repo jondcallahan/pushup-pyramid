@@ -50,8 +50,8 @@ const ShareCard = ({
     >
       {/* Ambient backgrounds/glows */}
       <div className="absolute top-0 left-0 h-40 w-full bg-gradient-to-b from-zinc-900 to-transparent opacity-50" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-64 w-64 rounded-full bg-lime-500/5 blur-3xl" />
-      <div className="absolute bottom-0 right-0 h-64 w-64 translate-x-1/3 translate-y-1/3 rounded-full bg-lime-500/10 blur-3xl" />
+      <div className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 h-64 w-64 rounded-full bg-lime-500/5 blur-3xl" />
+      <div className="absolute right-0 bottom-0 h-64 w-64 translate-x-1/3 translate-y-1/3 rounded-full bg-lime-500/10 blur-3xl" />
 
       {/* Header */}
       <div className="relative z-10 mt-4 flex w-full flex-col items-center gap-2">
@@ -85,8 +85,8 @@ const ShareCard = ({
           <div className="flex gap-1.5 text-lime-500">
             {[1, 2, 3, 4, 5].map((star) => (
               <span
-                key={`star-${star}`}
                 className={`text-2xl ${star <= rank.stars ? "opacity-100" : "text-zinc-800 opacity-100"}`}
+                key={`star-${star}`}
               >
                 ★
               </span>

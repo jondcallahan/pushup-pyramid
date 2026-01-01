@@ -173,12 +173,12 @@ export const workoutMachine = setup({
     }),
     saveToHealth: ({ context }) => {
       if (!isHealthAvailable()) return;
-      
+
       const totalReps = context.pyramidSets.reduce((a, b) => a + b, 0);
-      const durationMs = context.workoutStartedAt 
-        ? Date.now() - context.workoutStartedAt 
+      const durationMs = context.workoutStartedAt
+        ? Date.now() - context.workoutStartedAt
         : 0;
-      
+
       initHealthKit().then((initialized) => {
         if (initialized) {
           saveWorkout(totalReps, durationMs);
@@ -297,7 +297,11 @@ export const workoutMachine = setup({
                 mainContent: { type: "countdown" },
                 subText: "GET READY",
               },
-              entry: ["initCountdown", "sendPlayCountdownBeep", "markWorkoutStart"],
+              entry: [
+                "initCountdown",
+                "sendPlayCountdownBeep",
+                "markWorkoutStart",
+              ],
               invoke: {
                 src: "ticker",
                 input: {

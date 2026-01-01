@@ -58,7 +58,10 @@ export async function saveWorkout(
           console.log("saveWorkout error:", error);
           resolve(false);
         } else {
-          console.log(`Workout saved to Apple Health: ${totalReps} reps`, result);
+          console.log(
+            `Workout saved to Apple Health: ${totalReps} reps`,
+            result
+          );
           resolve(true);
         }
       }

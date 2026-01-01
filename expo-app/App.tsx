@@ -1,6 +1,6 @@
 import "./global.css";
 import { useMachine } from "@xstate/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import {
   SafeAreaProvider,
@@ -337,7 +337,9 @@ function AppContent() {
             <Text className="mb-1 font-bold text-[10px] text-zinc-500 tracking-widest">
               DOING
             </Text>
-            <Text className={`font-bold text-3xl ${status !== "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}>
+            <Text
+              className={`font-bold text-3xl ${status !== "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}
+            >
               {currentTargetReps || "-"}
             </Text>
           </View>
@@ -351,10 +353,12 @@ function AppContent() {
             </Text>
           </View>
           <View className="flex-1 items-center justify-center rounded-2xl border border-white/10 bg-zinc-900/30 p-3 backdrop-blur-sm">
-            <Text className="mb-1 font-bold text-[10px] tracking-widest text-zinc-500">
+            <Text className="mb-1 font-bold text-[10px] text-zinc-500 tracking-widest">
               UP NEXT
             </Text>
-            <Text className={`font-bold text-3xl ${status === "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}>
+            <Text
+              className={`font-bold text-3xl ${status === "resting" ? "text-white" : "text-zinc-500"} tabular-nums`}
+            >
               {nextSetReps ?? "-"}
             </Text>
           </View>
@@ -367,12 +371,12 @@ function AppContent() {
           style={{ width: size, height: size }}
         >
           <TimerProgress
-            size={size}
-            strokeWidth={strokeWidth}
-            strokeColor={strokeColor}
-            timerStartedAt={context.timerStartedAt}
-            timerDuration={context.timerDuration}
             isActive={status === "countdown" || status === "resting"}
+            size={size}
+            strokeColor={strokeColor}
+            strokeWidth={strokeWidth}
+            timerDuration={context.timerDuration}
+            timerStartedAt={context.timerStartedAt}
           />
           <View className="items-center justify-center">
             {renderMainContent()}
@@ -463,7 +467,7 @@ function AppContent() {
                 className="flex-row items-center gap-2 rounded-full bg-lime-500 px-8 py-4 active:bg-lime-400"
                 onPress={() => setShowShareModal(true)}
               >
-                <Icon name="share" size={24} color="#09090b" />
+                <Icon color="#09090b" name="share" size={24} />
                 <Text className="font-bold text-lg text-zinc-950">Share</Text>
               </Pressable>
               <Pressable

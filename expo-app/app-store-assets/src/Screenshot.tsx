@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 import { AbsoluteFill } from "remotion";
 
 type ScreenType = "idle" | "working" | "rest" | "finished";
@@ -35,7 +35,14 @@ const screenData: Record<
   idle: {
     strokeColor: COLORS.zinc600,
     mainContent: (
-      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke={COLORS.lime400} strokeWidth="2">
+      <svg
+        fill="none"
+        height="64"
+        stroke={COLORS.lime400}
+        strokeWidth="2"
+        viewBox="0 0 24 24"
+        width="64"
+      >
         <polygon points="5 3 19 12 5 21 5 3" />
       </svg>
     ),
@@ -49,7 +56,11 @@ const screenData: Record<
   },
   working: {
     strokeColor: COLORS.lime400,
-    mainContent: <span style={{ fontSize: 140, fontWeight: 900, color: COLORS.white }}>10</span>,
+    mainContent: (
+      <span style={{ fontSize: 140, fontWeight: 900, color: COLORS.white }}>
+        10
+      </span>
+    ),
     subText: "5 / 10 reps",
     currentReps: 10,
     completedVolume: 35,
@@ -60,7 +71,11 @@ const screenData: Record<
   },
   rest: {
     strokeColor: COLORS.cyan400,
-    mainContent: <span style={{ fontSize: 120, fontWeight: 900, color: COLORS.white }}>12s</span>,
+    mainContent: (
+      <span style={{ fontSize: 120, fontWeight: 900, color: COLORS.white }}>
+        12s
+      </span>
+    ),
     subText: "REST & RECOVER",
     currentReps: "—",
     completedVolume: 45,
@@ -85,7 +100,9 @@ const screenData: Record<
 export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
   const config = screenData[screen];
   // Pyramid for peak 10: 1,2,3,4,5,6,7,8,9,10,9,8,7,6,5,4,3,2,1
-  const pyramidSets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+  const pyramidSets = [
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1,
+  ];
   const peakReps = 10;
 
   // SVG circle config - scaled up for screenshot
@@ -99,7 +116,8 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
     <AbsoluteFill
       style={{
         backgroundColor: COLORS.bg,
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif',
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -109,13 +127,13 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
     >
       {/* Circular Progress */}
       <div style={{ position: "relative", marginBottom: 40 }}>
-        <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <svg height={size} style={{ transform: "rotate(-90deg)" }} width={size}>
           {/* Background circle */}
           <circle
             cx={size / 2}
             cy={size / 2}
-            r={radius}
             fill="none"
+            r={radius}
             stroke={COLORS.zinc800}
             strokeWidth={strokeWidth}
           />
@@ -123,13 +141,13 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
           <circle
             cx={size / 2}
             cy={size / 2}
-            r={radius}
             fill="none"
+            r={radius}
             stroke={config.strokeColor}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={circumference - progress * circumference}
+            strokeLinecap="round"
+            strokeWidth={strokeWidth}
           />
         </svg>
         {/* Center content */}
@@ -186,7 +204,14 @@ export const Screenshot: React.FC<{ screen: ScreenType }> = ({ screen }) => {
       </div>
 
       {/* Stats */}
-      <div style={{ display: "flex", gap: 120, textAlign: "center", marginBottom: 60 }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 120,
+          textAlign: "center",
+          marginBottom: 60,
+        }}
+      >
         <div>
           <div style={{ fontSize: 56, fontWeight: 700, color: COLORS.white }}>
             {config.currentReps}
