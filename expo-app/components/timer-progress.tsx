@@ -68,7 +68,7 @@ export function TimerProgress({
       <Circle
         cx={size / 2}
         cy={size / 2}
-        fill={!isActive ? "transparent" : "#09090b"}
+        fill={isActive ? "#09090b" : "transparent"}
         r={radius}
         stroke={strokeColor}
         strokeDasharray={circumference}

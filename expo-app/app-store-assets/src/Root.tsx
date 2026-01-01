@@ -1,6 +1,6 @@
 import { Composition } from "remotion";
-import { Screenshot } from "./Screenshot";
 import { AppPreview } from "./AppPreview";
+import { Screenshot } from "./Screenshot";
 
 // iPhone screen sizes for App Store
 const IPHONE_67 = { width: 1290, height: 2796 }; // 6.7" (iPhone 15 Pro Max)
@@ -13,126 +13,126 @@ export const RemotionRoot: React.FC = () => {
     <>
       {/* Screenshots for 6.7" iPhone */}
       <Composition
-        id="Screenshot-67-1"
         component={Screenshot}
-        durationInFrames={1}
-        fps={30}
-        width={IPHONE_67.width}
-        height={IPHONE_67.height}
         defaultProps={{ screen: "idle" as const }}
-      />
-      <Composition
-        id="Screenshot-67-2"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_67.width}
         height={IPHONE_67.height}
+        id="Screenshot-67-1"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "working" as const }}
-      />
-      <Composition
-        id="Screenshot-67-3"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_67.width}
         height={IPHONE_67.height}
+        id="Screenshot-67-2"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "rest" as const }}
-      />
-      <Composition
-        id="Screenshot-67-4"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_67.width}
         height={IPHONE_67.height}
+        id="Screenshot-67-3"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_67.height}
+        id="Screenshot-67-4"
+        width={IPHONE_67.width}
       />
 
       {/* Screenshots for 6.5" iPhone */}
       <Composition
-        id="Screenshot-65-1"
         component={Screenshot}
-        durationInFrames={1}
-        fps={30}
-        width={IPHONE_65.width}
-        height={IPHONE_65.height}
         defaultProps={{ screen: "idle" as const }}
-      />
-      <Composition
-        id="Screenshot-65-2"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_65.width}
         height={IPHONE_65.height}
+        id="Screenshot-65-1"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "working" as const }}
-      />
-      <Composition
-        id="Screenshot-65-3"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_65.width}
         height={IPHONE_65.height}
+        id="Screenshot-65-2"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "rest" as const }}
-      />
-      <Composition
-        id="Screenshot-65-4"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_65.width}
         height={IPHONE_65.height}
+        id="Screenshot-65-3"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_65.height}
+        id="Screenshot-65-4"
+        width={IPHONE_65.width}
       />
 
       {/* Screenshots for 5.5" iPhone */}
       <Composition
-        id="Screenshot-55-1"
         component={Screenshot}
-        durationInFrames={1}
-        fps={30}
-        width={IPHONE_55.width}
-        height={IPHONE_55.height}
         defaultProps={{ screen: "idle" as const }}
-      />
-      <Composition
-        id="Screenshot-55-2"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_55.width}
         height={IPHONE_55.height}
+        id="Screenshot-55-1"
+        width={IPHONE_55.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "working" as const }}
-      />
-      <Composition
-        id="Screenshot-55-3"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_55.width}
         height={IPHONE_55.height}
+        id="Screenshot-55-2"
+        width={IPHONE_55.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "rest" as const }}
-      />
-      <Composition
-        id="Screenshot-55-4"
-        component={Screenshot}
         durationInFrames={1}
         fps={30}
-        width={IPHONE_55.width}
         height={IPHONE_55.height}
+        id="Screenshot-55-3"
+        width={IPHONE_55.width}
+      />
+      <Composition
+        component={Screenshot}
         defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_55.height}
+        id="Screenshot-55-4"
+        width={IPHONE_55.width}
       />
 
       {/* App Preview Video (30 seconds) */}
       <Composition
-        id="AppPreview-67"
         component={AppPreview}
         durationInFrames={900}
         fps={30}
-        width={IPHONE_67.width}
         height={IPHONE_67.height}
+        id="AppPreview-67"
+        width={IPHONE_67.width}
       />
     </>
   );

@@ -1,9 +1,9 @@
-import React from "react";
+import type React from "react";
 import {
   AbsoluteFill,
   interpolate,
-  useCurrentFrame,
   spring,
+  useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 
@@ -62,10 +62,10 @@ const Pyramid: React.FC<{ highlightIndex: number }> = ({ highlightIndex }) => {
     >
       {bars.map((height, idx) => (
         <PyramidBar
-          key={idx}
-          height={height}
           active={idx === highlightIndex}
           completed={idx < highlightIndex}
+          height={height}
+          key={idx}
         />
       ))}
     </div>
@@ -85,25 +85,25 @@ const CircularProgress: React.FC<{
 
   return (
     <div style={{ position: "relative", width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+      <svg height={size} style={{ transform: "rotate(-90deg)" }} width={size}>
         <circle
           cx={size / 2}
           cy={size / 2}
-          r={radius}
           fill="none"
+          r={radius}
           stroke={COLORS.zinc800}
           strokeWidth={strokeWidth}
         />
         <circle
           cx={size / 2}
           cy={size / 2}
-          r={radius}
           fill="none"
+          r={radius}
           stroke={strokeColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
+          strokeLinecap="round"
+          strokeWidth={strokeWidth}
         />
       </svg>
       <div
@@ -153,9 +153,14 @@ export const AppPreview: React.FC = () => {
   else scene = "finished";
 
   // Intro animation
-  const introOpacity = interpolate(frame, [0, 30, introEnd - 30, introEnd], [0, 1, 1, 0], {
-    extrapolateRight: "clamp",
-  });
+  const introOpacity = interpolate(
+    frame,
+    [0, 30, introEnd - 30, introEnd],
+    [0, 1, 1, 0],
+    {
+      extrapolateRight: "clamp",
+    }
+  );
 
   // Working rep counter (cycle through reps)
   const workingFrame = frame - countdownEnd;
@@ -168,12 +173,10 @@ export const AppPreview: React.FC = () => {
   const restSeconds = Math.max(0, 15 - Math.floor(restFrame / fps));
 
   // Progress through workout
-  const workoutProgress = interpolate(
-    frame,
-    [idleEnd, restEnd],
-    [0, 0.8],
-    { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-  );
+  const workoutProgress = interpolate(frame, [idleEnd, restEnd], [0, 0.8], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Stroke color based on scene
   const strokeColor =
@@ -286,7 +289,7 @@ export const AppPreview: React.FC = () => {
               >
                 {scene === "idle" && "Tap to start"}
                 {scene === "countdown" && "Starting soon"}
-                {scene === "working" && `Set 5 of 9`}
+                {scene === "working" && "Set 5 of 9"}
                 {scene === "rest" && "Next: 9 reps"}
                 {scene === "finished" && "100 push-ups complete"}
               </div>
@@ -311,7 +314,11 @@ export const AppPreview: React.FC = () => {
               )}
               {scene === "countdown" && (
                 <div
-                  style={{ fontSize: 200, fontWeight: 900, color: COLORS.white }}
+                  style={{
+                    fontSize: 200,
+                    fontWeight: 900,
+                    color: COLORS.white,
+                  }}
                 >
                   {3 - Math.floor((frame - idleEnd) / fps)}
                 </div>
@@ -330,7 +337,11 @@ export const AppPreview: React.FC = () => {
               )}
               {scene === "rest" && (
                 <div
-                  style={{ fontSize: 180, fontWeight: 900, color: COLORS.white }}
+                  style={{
+                    fontSize: 180,
+                    fontWeight: 900,
+                    color: COLORS.white,
+                  }}
                 >
                   {restSeconds}s
                 </div>
@@ -375,7 +386,11 @@ export const AppPreview: React.FC = () => {
               <div
                 style={{ fontSize: 56, fontWeight: 700, color: COLORS.white }}
               >
-                {scene === "working" ? Math.min(currentRep, 10) : scene === "finished" ? "100" : "—"}
+                {scene === "working"
+                  ? Math.min(currentRep, 10)
+                  : scene === "finished"
+                    ? "100"
+                    : "—"}
               </div>
               <div style={{ fontSize: 28, color: COLORS.zinc400 }}>REPS</div>
             </div>
@@ -383,7 +398,10 @@ export const AppPreview: React.FC = () => {
               <div
                 style={{ fontSize: 56, fontWeight: 700, color: COLORS.white }}
               >
-                {scene === "finished" ? "100" : Math.floor(workoutProgress * 100)} / 100
+                {scene === "finished"
+                  ? "100"
+                  : Math.floor(workoutProgress * 100)}{" "}
+                / 100
               </div>
               <div style={{ fontSize: 28, color: COLORS.zinc400 }}>VOLUME</div>
             </div>

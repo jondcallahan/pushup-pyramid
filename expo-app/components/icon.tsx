@@ -1,14 +1,14 @@
 import { SymbolView, type SymbolViewProps } from "expo-symbols";
 import {
   ArrowCounterClockwise,
+  Barbell,
   CaretDown,
   CaretUp,
-  Barbell,
   ChartLineUp,
-  Pause,
-  Play,
   FastForward,
   Gear,
+  Pause,
+  Play,
   ShareNetwork,
   SpeakerHigh,
   SpeakerSlash,

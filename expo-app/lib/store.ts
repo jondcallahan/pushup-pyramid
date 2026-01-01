@@ -1,6 +1,10 @@
 import { Platform } from "react-native";
 import { create } from "zustand";
-import { persist, createJSONStorage, StateStorage } from "zustand/middleware";
+import {
+  createJSONStorage,
+  persist,
+  type StateStorage,
+} from "zustand/middleware";
 
 const STORAGE_KEY = "pyramid-push-storage";
 

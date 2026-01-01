@@ -189,7 +189,7 @@ const ShareModal = ({
 
         {/* Tip */}
         <div className="px-4 pb-4">
-          <p className="text-center text-zinc-500 text-xs">
+          <p className="text-center text-xs text-zinc-500">
             Share your achievement on Instagram, Twitter, or send to friends!
           </p>
         </div>

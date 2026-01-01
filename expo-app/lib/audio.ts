@@ -1,4 +1,8 @@
-import { type AudioPlayer, createAudioPlayer, setAudioModeAsync } from "expo-audio";
+import {
+  type AudioPlayer,
+  createAudioPlayer,
+  setAudioModeAsync,
+} from "expo-audio";
 import { Platform } from "react-native";
 import { fromCallback } from "xstate";
 
