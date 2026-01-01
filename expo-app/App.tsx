@@ -119,6 +119,8 @@ function AppContent() {
   const [smoothProgress, setSmoothProgress] = useState(1);
   const animationRef = useRef<number | null>(null);
 
+  const { timerStartedAt, timerDuration } = context;
+
   useEffect(() => {
     if (status !== "countdown" && status !== "resting") {
       setSmoothProgress(1);
@@ -126,7 +128,6 @@ function AppContent() {
       return;
     }
 
-    const { timerStartedAt, timerDuration } = context;
     if (!(timerStartedAt && timerDuration)) {
       setSmoothProgress(1);
       return;
@@ -143,7 +144,7 @@ function AppContent() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [status, context]);
+  }, [status, timerStartedAt, timerDuration]);
 
   const strokeDashoffset = circumference - smoothProgress * circumference;
 
