@@ -120,8 +120,9 @@ const audioSources = {
   countdownBeep: require("../assets/audio/countdown_beep.wav"),
 };
 
-// Singleton storage for players
+// Singleton storage for players and reference counting
 let nativePlayers: Record<string, AudioPlayer> | null = null;
+let playerRefCount = 0;
 
 const createNativeAudio = () => {
   let isMuted = false;
@@ -142,6 +143,7 @@ const createNativeAudio = () => {
       }
     }
   }
+  playerRefCount++;
 
   const playSound = (key: keyof typeof audioSources) => {
     if (isMuted) {
@@ -174,7 +176,14 @@ const createNativeAudio = () => {
       isMuted = muted;
     },
     cleanup: () => {
-      // Do not release players as they are global singletons
+      playerRefCount--;
+      if (playerRefCount <= 0) {
+        if (nativePlayers) {
+          Object.values(nativePlayers).forEach((player) => player.release());
+          nativePlayers = null;
+        }
+        playerRefCount = 0;
+      }
     },
   };
 };
