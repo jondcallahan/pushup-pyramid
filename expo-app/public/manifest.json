@@ -9,9 +9,15 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://fav.farm/💪",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
+      "src": "/favicon.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
