@@ -15,20 +15,20 @@ if (Platform.OS === "ios") {
   }
 }
 
-const HEALTH_PERMISSIONS = {
-  permissions: {
-    read: [],
-    write: ["Workout"],
-  },
-};
-
 export async function initHealthKit(): Promise<boolean> {
   console.log("🏥 initHealthKit called, AppleHealthKit:", !!AppleHealthKit);
   if (!AppleHealthKit) return false;
 
+  const permissions = {
+    permissions: {
+      read: [],
+      write: [AppleHealthKit.Constants.Permissions.Workout],
+    },
+  };
+
   return new Promise((resolve) => {
     console.log("🏥 Calling AppleHealthKit.initHealthKit...");
-    AppleHealthKit.initHealthKit(HEALTH_PERMISSIONS, (error: string) => {
+    AppleHealthKit.initHealthKit(permissions, (error: string) => {
       if (error) {
         console.log("🏥 HealthKit init error:", error);
         resolve(false);
@@ -50,12 +50,20 @@ export async function saveWorkout(
   const startDate = new Date(endDate.getTime() - durationMs);
 
   return new Promise((resolve) => {
-    AppleHealthKit.saveWorkout(
-      {
-        type: "FunctionalStrengthTraining", // Maps to HKWorkoutActivityType
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
+    // Add metadata: https://developer.apple.com/documentation/healthkit/hkmetadata
+    const options = {
+      type: "FunctionalStrengthTraining", // Maps to HKWorkoutActivityType
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      metadata: {
+        // Use a generic key if we can't find specific push-up metadata key support in the lib
+        // but typically one might want to log reps.
+        // react-native-health support varies, but standard saveWorkout supports metadata object.
       },
+    };
+
+    AppleHealthKit.saveWorkout(
+      options,
       (error: string | null, result: unknown) => {
         if (error) {
           console.log("saveWorkout error:", error);

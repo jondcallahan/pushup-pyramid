@@ -1,17 +1,21 @@
-const { withDangerousMod, withEntitlementsPlist, withInfoPlist } = require("@expo/config-plugins");
-const fs = require("fs");
-const path = require("path");
+const { withEntitlementsPlist, withInfoPlist } = require("@expo/config-plugins");
 
 /**
  * Expo config plugin to properly configure react-native-health
- * Adds HealthKit entitlements, Info.plist entries, and Podfile dependency
+ * Adds HealthKit entitlements and Info.plist entries.
+ * Note: react-native-health supports autolinking, so no Podfile modification is needed.
  */
 
 // Add HealthKit entitlements
 const withHealthKitEntitlements = (config) => {
   return withEntitlementsPlist(config, (config) => {
+    // Standard HealthKit entitlement for Fitness
     config.modResults["com.apple.developer.healthkit"] = true;
-    config.modResults["com.apple.developer.healthkit.access"] = [];
+
+    // NOTE: "com.apple.developer.healthkit.access" is for Clinical Health Records.
+    // We do NOT include it as it requires special provisioning and is not needed for workouts.
+    // If included without provisioning, the app will fail to install/launch.
+
     return config;
   });
 };
@@ -29,39 +33,10 @@ const withHealthKitInfoPlist = (config) => {
   });
 };
 
-// Add react-native-health pod to Podfile
-const withHealthKitPodfile = (config) => {
-  return withDangerousMod(config, [
-    "ios",
-    async (config) => {
-      const podfilePath = path.join(config.modRequest.platformProjectRoot, "Podfile");
-      let podfileContent = fs.readFileSync(podfilePath, "utf8");
-
-      // Check if already added
-      if (podfileContent.includes("react-native-health")) {
-        return config;
-      }
-
-      // Add pod after use_expo_modules!
-      const targetLine = "use_expo_modules!";
-      const podLine = `\n  # HealthKit support\n  pod 'react-native-health', :path => '../node_modules/react-native-health'`;
-
-      podfileContent = podfileContent.replace(
-        targetLine,
-        targetLine + podLine
-      );
-
-      fs.writeFileSync(podfilePath, podfileContent);
-      return config;
-    },
-  ]);
-};
-
 // Main plugin - combines all modifications
 const withHealthKit = (config) => {
   config = withHealthKitEntitlements(config);
   config = withHealthKitInfoPlist(config);
-  config = withHealthKitPodfile(config);
   return config;
 };
 
