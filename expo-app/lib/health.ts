@@ -15,18 +15,18 @@ if (Platform.OS === "ios") {
   }
 }
 
+const HEALTH_PERMISSIONS = {
+  permissions: {
+    read: [],
+    write: ["Workout"],
+  },
+};
+
 export async function initHealthKit(): Promise<boolean> {
   if (!AppleHealthKit) return false;
 
-  const permissions = {
-    permissions: {
-      read: [],
-      write: [AppleHealthKit.Constants.Permissions.Workout],
-    },
-  };
-
   return new Promise((resolve) => {
-    AppleHealthKit.initHealthKit(permissions, (error: string) => {
+    AppleHealthKit.initHealthKit(HEALTH_PERMISSIONS, (error: string) => {
       if (error) {
         console.log("HealthKit init error:", error);
         resolve(false);
@@ -49,12 +49,9 @@ export async function saveWorkout(
   return new Promise((resolve) => {
     AppleHealthKit.saveWorkout(
       {
-        type: AppleHealthKit.Constants.Activities.FunctionalStrengthTraining,
+        type: "FunctionalStrengthTraining", // Maps to HKWorkoutActivityType
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
-        metadata: {
-          totalReps: totalReps,
-        },
       },
       (error: string | null, result: unknown) => {
         if (error) {

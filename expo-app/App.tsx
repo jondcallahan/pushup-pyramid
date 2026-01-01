@@ -6,11 +6,11 @@ import {
   SafeAreaProvider,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import Svg, { Circle } from "react-native-svg";
 import { BouncingTrophy } from "./components/bouncing-trophy";
 import { Icon } from "./components/icon";
 import { Onboarding } from "./components/onboarding";
 import ShareModal from "./components/share-modal";
+import { TimerProgress } from "./components/timer-progress";
 import { useAppStore } from "./lib/store";
 import {
   selectCompletedVolume,
@@ -112,41 +112,6 @@ function AppContent() {
   // SVG circle config - match original at 300px
   const size = 300;
   const strokeWidth = 12;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-
-  // Smooth progress animation
-  const [smoothProgress, setSmoothProgress] = useState(1);
-  const animationRef = useRef<number | null>(null);
-
-  const { timerStartedAt, timerDuration } = context;
-
-  useEffect(() => {
-    if (status !== "countdown" && status !== "resting") {
-      setSmoothProgress(1);
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-      return;
-    }
-
-    if (!(timerStartedAt && timerDuration)) {
-      setSmoothProgress(1);
-      return;
-    }
-
-    const animate = () => {
-      const elapsed = Date.now() - timerStartedAt;
-      const remaining = Math.max(0, timerDuration - elapsed);
-      setSmoothProgress(remaining / timerDuration);
-      if (remaining > 0) animationRef.current = requestAnimationFrame(animate);
-    };
-
-    animationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, [status, timerStartedAt, timerDuration]);
-
-  const strokeDashoffset = circumference - smoothProgress * circumference;
 
   const renderMainContent = () => {
     const { mainContent } = stateMeta;
@@ -401,31 +366,14 @@ function AppContent() {
           onPress={handleMainClick}
           style={{ width: size, height: size }}
         >
-          <Svg
-            height={size}
-            style={{ position: "absolute", transform: [{ rotate: "-90deg" }] }}
-            width={size}
-          >
-            <Circle
-              cx={size / 2}
-              cy={size / 2}
-              fill="transparent"
-              r={radius}
-              stroke="#18181b"
-              strokeWidth={strokeWidth}
-            />
-            <Circle
-              cx={size / 2}
-              cy={size / 2}
-              fill={status === "idle" ? "transparent" : "#09090b"}
-              r={radius}
-              stroke={strokeColor}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              strokeLinecap="round"
-              strokeWidth={strokeWidth}
-            />
-          </Svg>
+          <TimerProgress
+            size={size}
+            strokeWidth={strokeWidth}
+            strokeColor={strokeColor}
+            timerStartedAt={context.timerStartedAt}
+            timerDuration={context.timerDuration}
+            isActive={status === "countdown" || status === "resting"}
+          />
           <View className="items-center justify-center">
             {renderMainContent()}
             <Text className="mt-2 font-medium text-xs text-zinc-400 uppercase tracking-widest">
