@@ -52,7 +52,3 @@ export async function saveWorkoutToHealth(
     return false;
   }
 }
-
-export async function isHealthAvailable(): Promise<boolean> {
-  return await isHealthDataAvailable();
-}
