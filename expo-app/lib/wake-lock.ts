@@ -20,9 +20,8 @@ export const wakeLockActor = fromCallback(() => {
   const acquireLock = async () => {
     try {
       sentinel = await navigator.wakeLock.request("screen");
-      console.log("Wake Lock acquired");
-    } catch (err) {
-      console.error("Wake Lock failed:", err);
+    } catch {
+      // Wake lock not supported or failed
     }
   };
 
@@ -49,6 +48,5 @@ export const wakeLockActor = fromCallback(() => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     }
     sentinel?.release();
-    console.log("Wake Lock released");
   };
 });

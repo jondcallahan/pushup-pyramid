@@ -1,6 +1,6 @@
 import { assign, fromCallback, sendTo, setup } from "xstate";
 import { audioActor } from "./audio";
-import { initHealthKit, isHealthAvailable, saveWorkout } from "./health";
+import { initHealthKit, saveWorkoutToHealth } from "./health";
 import { wakeLockActor } from "./wake-lock";
 
 // --- Types ---
@@ -114,6 +114,7 @@ export const workoutMachine = setup({
       completedRepsInSet: 0,
       countdownSecondsLeft: 3,
       restSecondsLeft: 0,
+      workoutStartedAt: 0, // Clear so next workout gets fresh timestamp
     }),
     toggleMute: assign({
       isMuted: ({ context }) => !context.isMuted,
@@ -168,12 +169,13 @@ export const workoutMachine = setup({
     setTempo: assign({
       tempoMs: ({ event }) => (event as { tempoMs: number }).tempoMs,
     }),
+    // Only set on first countdown - preserve through rest periods so total
+    // workout duration (including rests) is saved to HealthKit
     markWorkoutStart: assign({
-      workoutStartedAt: () => Date.now(),
+      workoutStartedAt: ({ context }) =>
+        context.workoutStartedAt || Date.now(),
     }),
     saveToHealth: ({ context }) => {
-      if (!isHealthAvailable()) return;
-
       const totalReps = context.pyramidSets.reduce((a, b) => a + b, 0);
       const durationMs = context.workoutStartedAt
         ? Date.now() - context.workoutStartedAt
@@ -181,7 +183,7 @@ export const workoutMachine = setup({
 
       initHealthKit().then((initialized) => {
         if (initialized) {
-          saveWorkout(totalReps, durationMs);
+          saveWorkoutToHealth(totalReps, durationMs);
         }
       });
     },

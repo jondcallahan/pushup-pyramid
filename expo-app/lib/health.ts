@@ -1,77 +1,54 @@
-import { Platform } from "react-native";
+import {
+  isHealthDataAvailable,
+  requestAuthorization,
+  saveWorkoutSample,
+  WorkoutActivityType,
+} from "@kingstinct/react-native-healthkit";
 
-// Apple Health integration for iOS
-// Saves workout as "Functional Strength Training" with push-up count
-
-// Dynamic import to avoid crash on non-iOS platforms
-// biome-ignore lint/suspicious/noExplicitAny: dynamic require for platform-specific module
-let AppleHealthKit: any = null;
-
-if (Platform.OS === "ios") {
-  try {
-    AppleHealthKit = require("react-native-health").default;
-  } catch {
-    console.log("Apple Health not available");
-  }
-}
-
-const HEALTH_PERMISSIONS = {
-  permissions: {
-    read: [],
-    write: ["Workout"],
-  },
-};
+const CALORIES_PER_PUSHUP = 0.36;
 
 export async function initHealthKit(): Promise<boolean> {
-  console.log("🏥 initHealthKit called, AppleHealthKit:", !!AppleHealthKit);
-  if (!AppleHealthKit) return false;
+  const available = await isHealthDataAvailable();
+  if (!available) {
+    return false;
+  }
 
-  return new Promise((resolve) => {
-    console.log("🏥 Calling AppleHealthKit.initHealthKit...");
-    AppleHealthKit.initHealthKit(HEALTH_PERMISSIONS, (error: string) => {
-      if (error) {
-        console.log("🏥 HealthKit init error:", error);
-        resolve(false);
-      } else {
-        console.log("🏥 HealthKit init SUCCESS");
-        resolve(true);
-      }
-    });
+  return await requestAuthorization({
+    toShare: [
+      "HKQuantityTypeIdentifierActiveEnergyBurned",
+      "HKWorkoutTypeIdentifier",
+    ],
   });
 }
 
-export async function saveWorkout(
+export async function saveWorkoutToHealth(
   totalReps: number,
   durationMs: number
 ): Promise<boolean> {
-  if (!AppleHealthKit) return false;
+  const now = new Date();
+  const startDate = new Date(now.getTime() - durationMs);
 
-  const endDate = new Date();
-  const startDate = new Date(endDate.getTime() - durationMs);
+  try {
+    const caloriesBurned = totalReps * CALORIES_PER_PUSHUP;
 
-  return new Promise((resolve) => {
-    AppleHealthKit.saveWorkout(
-      {
-        type: "FunctionalStrengthTraining", // Maps to HKWorkoutActivityType
-        startDate: startDate.toISOString(),
-        endDate: endDate.toISOString(),
-      },
-      (error: string | null, result: unknown) => {
-        if (error) {
-          console.log("saveWorkout error:", error);
-          resolve(false);
-        } else {
-          console.log(
-            `Workout saved to Apple Health: ${totalReps} reps`,
-            result
-          );
-          resolve(true);
-        }
-      }
+    await saveWorkoutSample(
+      WorkoutActivityType.functionalStrengthTraining,
+      [
+        {
+          quantityType: "HKQuantityTypeIdentifierActiveEnergyBurned",
+          quantity: caloriesBurned,
+          unit: "kcal",
+          startDate,
+          endDate: now,
+        },
+      ],
+      startDate,
+      now,
+      { energyBurned: caloriesBurned },
+      { totalReps: String(totalReps) }
     );
-  });
-}
-
-export function isHealthAvailable(): boolean {
-  return Platform.OS === "ios" && AppleHealthKit !== null;
+    return true;
+  } catch {
+    return false;
+  }
 }

@@ -11,7 +11,6 @@ import { Icon } from "./components/icon";
 import { Onboarding } from "./components/onboarding";
 import ShareModal from "./components/share-modal";
 import { TimerProgress } from "./components/timer-progress";
-import { initHealthKit, isHealthAvailable } from "./lib/health";
 import { useAppStore } from "./lib/store";
 import {
   selectCompletedVolume,
@@ -41,35 +40,12 @@ const strokeColors: Record<string, string> = {
 // Main app wrapped in SafeAreaProvider
 export default function App() {
   const hasSeenOnboarding = useAppStore((s) => s.hasSeenOnboarding);
-  const hasRequestedHealthKit = useAppStore((s) => s.hasRequestedHealthKit);
-  const setHealthKitRequested = useAppStore((s) => s.setHealthKitRequested);
   const [showOnboarding, setShowOnboarding] = useState(!hasSeenOnboarding);
 
   // Sync with persisted state (handles hydration)
   useEffect(() => {
     setShowOnboarding(!hasSeenOnboarding);
   }, [hasSeenOnboarding]);
-
-  // Request HealthKit permissions on app startup (once)
-  useEffect(() => {
-    console.log("🏥 HealthKit check:", {
-      hasRequestedHealthKit,
-      isAvailable: isHealthAvailable(),
-    });
-    if (!hasRequestedHealthKit && isHealthAvailable()) {
-      console.log("🏥 Requesting HealthKit permissions...");
-      initHealthKit()
-        .then((success) => {
-          console.log("🏥 HealthKit init result:", success);
-          setHealthKitRequested();
-        })
-        .catch((error) => {
-          console.log("🏥 Failed to initialize HealthKit:", error);
-          // Still mark as requested so we don't spam
-          setHealthKitRequested();
-        });
-    }
-  }, [hasRequestedHealthKit, setHealthKitRequested]);
 
   return (
     <SafeAreaProvider>
