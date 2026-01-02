@@ -14,6 +14,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { initHealthKit } from "../lib/health";
 import { useAppStore } from "../lib/store";
 import { Icon, type IconName } from "./icon";
 
@@ -186,8 +187,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     handleComplete();
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     useAppStore.setState({ hasSeenOnboarding: true });
+    await initHealthKit();
     onComplete();
   };
 

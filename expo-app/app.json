@@ -15,13 +15,8 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pyramidpush.app",
-      "infoPlist": {
-        "NSHealthShareUsageDescription": "Pyramid Push syncs your workouts to Apple Health so you can track your push-up progress over time.",
-        "NSHealthUpdateUsageDescription": "Pyramid Push saves your completed workouts to Apple Health."
-      },
       "entitlements": {
-        "com.apple.developer.healthkit": true,
-        "com.apple.developer.healthkit.background-delivery": false
+        "com.apple.developer.healthkit": true
       }
     },
     "android": {
@@ -38,6 +33,15 @@
       "output": "single",
       "backgroundColor": "#09090b"
     },
-    "plugins": ["expo-audio", "./plugins/withHealthKit"]
+    "plugins": [
+      "expo-audio",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Pyramid Push syncs your workouts to Apple Health.",
+          "NSHealthUpdateUsageDescription": "Pyramid Push saves your workouts to Apple Health."
+        }
+      ]
+    ]
   }
 }
