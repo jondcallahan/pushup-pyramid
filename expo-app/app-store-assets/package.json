@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@remotion/bundler": "^4.0.397",
     "@remotion/cli": "^4.0.397",
     "@types/react": "^19.2.7",

@@ -1,7 +1,9 @@
 import { Composition } from "remotion";
 import { AppPreview } from "./AppPreview";
+import { AppPreviewV2 } from "./AppPreviewV2";
 import { OgImage } from "./OgImage";
 import { Screenshot } from "./Screenshot";
+import { ScreenshotV2 } from "./ScreenshotV2";
 
 // iPhone screen sizes for App Store (Apple accepted dimensions)
 const IPHONE_67 = { width: 1284, height: 2778 }; // 6.7" display
@@ -166,6 +168,120 @@ export const RemotionRoot: React.FC = () => {
         width={IPAD_129.width}
       />
 
+      {/* V2 Screenshots with device frames - 6.7" */}
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "idle" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_67.height}
+        id="ScreenshotV2-67-1"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "working" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_67.height}
+        id="ScreenshotV2-67-2"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "rest" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_67.height}
+        id="ScreenshotV2-67-3"
+        width={IPHONE_67.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_67.height}
+        id="ScreenshotV2-67-4"
+        width={IPHONE_67.width}
+      />
+
+      {/* V2 Screenshots with device frames - 6.5" */}
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "idle" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_65.height}
+        id="ScreenshotV2-65-1"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "working" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_65.height}
+        id="ScreenshotV2-65-2"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "rest" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_65.height}
+        id="ScreenshotV2-65-3"
+        width={IPHONE_65.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPHONE_65.height}
+        id="ScreenshotV2-65-4"
+        width={IPHONE_65.width}
+      />
+
+      {/* V2 Screenshots with device frames - iPad */}
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "idle" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPAD_129.height}
+        id="ScreenshotV2-iPad-1"
+        width={IPAD_129.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "working" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPAD_129.height}
+        id="ScreenshotV2-iPad-2"
+        width={IPAD_129.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "rest" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPAD_129.height}
+        id="ScreenshotV2-iPad-3"
+        width={IPAD_129.width}
+      />
+      <Composition
+        component={ScreenshotV2}
+        defaultProps={{ screen: "finished" as const }}
+        durationInFrames={1}
+        fps={30}
+        height={IPAD_129.height}
+        id="ScreenshotV2-iPad-4"
+        width={IPAD_129.width}
+      />
+
       {/* App Preview Video (30 seconds) */}
       <Composition
         component={AppPreview}
@@ -173,6 +289,16 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         height={VIDEO_PREVIEW.height}
         id="AppPreview-67"
+        width={VIDEO_PREVIEW.width}
+      />
+
+      {/* App Preview Video V2 with device frame */}
+      <Composition
+        component={AppPreviewV2}
+        durationInFrames={900}
+        fps={30}
+        height={VIDEO_PREVIEW.height}
+        id="AppPreviewV2"
         width={VIDEO_PREVIEW.width}
       />
 
