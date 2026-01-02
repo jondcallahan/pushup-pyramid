@@ -128,8 +128,8 @@ function AppContent() {
       case "countdown":
         return (
           <Text
-            className="font-bold text-6xl tabular-nums"
-            style={{ color: strokeColor }}
+            className="font-bold text-6xl"
+            style={{ color: strokeColor, fontVariant: ["tabular-nums"] }}
           >
             {countdownSeconds}
           </Text>
@@ -137,8 +137,8 @@ function AppContent() {
       case "rest":
         return (
           <Text
-            className="font-mono text-6xl tabular-nums"
-            style={{ color: strokeColor }}
+            className="font-mono text-6xl"
+            style={{ color: strokeColor, fontVariant: ["tabular-nums"] }}
           >
             {restSeconds}s
           </Text>
