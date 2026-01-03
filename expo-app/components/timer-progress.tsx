@@ -34,6 +34,9 @@ export function TimerProgress({
   useEffect(() => {
     if (!isActive) {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (progress.value !== 1) {
+        progress.value = withTiming(1, { duration: 200 });
+      }
       return;
     }
 
@@ -41,6 +44,8 @@ export function TimerProgress({
       progress.value = 1;
       return;
     }
+
+    progress.value = 1;
 
     const animate = () => {
       const elapsed = Date.now() - timerStartedAt;
@@ -57,13 +62,7 @@ export function TimerProgress({
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isActive, timerStartedAt, timerDuration, progress]);
-
-  useEffect(() => {
-    if (!isActive && progress.value !== 1) {
-      progress.value = withTiming(1, { duration: 200 });
-    }
-  }, [isActive, progress]);
+  }, [isActive, timerStartedAt, timerDuration]);
 
   const animatedProps = useAnimatedProps(() => ({
     strokeDashoffset: circumference - progress.value * circumference,
