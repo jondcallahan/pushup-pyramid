@@ -11,6 +11,7 @@ import { Icon } from "./components/icon";
 import { Onboarding } from "./components/onboarding";
 import ShareModal from "./components/share-modal";
 import { TimerProgress } from "./components/timer-progress";
+import { WebAnalytics } from "./components/analytics";
 import { useAppStore } from "./lib/store";
 import {
   selectCompletedVolume,
@@ -49,6 +50,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
+      <WebAnalytics />
       {showOnboarding ? (
         <Onboarding onComplete={() => setShowOnboarding(false)} />
       ) : (
