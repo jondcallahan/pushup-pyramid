@@ -45,7 +45,7 @@ const createWebAudio = () => {
   const playTone = (
     freq: number,
     duration = 0.1,
-    volume = 0.3,
+    volume = 1.0,
     type: OscillatorType = "sine"
   ) => {
     if (isMuted) {
@@ -80,29 +80,29 @@ const createWebAudio = () => {
 
   return {
     playTone,
-    playDown: () => playTone(440, 0.06, 0.4),
-    playUp: () => playTone(800, 0.05, 0.3),
+    playDown: () => playTone(440, 0.06, 1.0),
+    playUp: () => playTone(800, 0.05, 1.0),
     playLastDown: () => {
-      playTone(220, 0.25, 0.25);
-      playTone(440, 0.25, 0.25);
-      playTone(659.25, 0.25, 0.2);
+      playTone(220, 0.25, 0.33);
+      playTone(440, 0.25, 0.33);
+      playTone(659.25, 0.25, 0.34);
     },
     playLastUp: () => {
-      playTone(220, 0.4, 0.3);
-      playTone(440, 0.4, 0.3);
-      playTone(659.25, 0.4, 0.25);
+      playTone(220, 0.4, 0.33);
+      playTone(440, 0.4, 0.33);
+      playTone(659.25, 0.4, 0.34);
     },
-    playGo: () => playTone(880, 0.2, 0.45),
+    playGo: () => playTone(880, 0.2, 1.0),
     playRest: () => {
-      playTone(440, 0.15, 0.3);
-      setTimeout(() => playTone(329.63, 0.3, 0.4), 120);
+      playTone(440, 0.12, 1.0);
+      setTimeout(() => playTone(329.63, 0.3, 1.0), 120);
     },
     playFinish: () => {
       [440, 554.37, 659.25, 880].forEach((f, i) => {
-        setTimeout(() => playTone(f, 0.5, 0.25), i * 100);
+        setTimeout(() => playTone(f, 0.5, 0.3), i * 100);
       });
     },
-    playCountdownBeep: () => playTone(880, 0.05, 0.3),
+    playCountdownBeep: () => playTone(880, 0.05, 1.0),
     setMuted: (muted: boolean) => {
       isMuted = muted;
     },
@@ -141,7 +141,9 @@ const createNativeAudio = () => {
     nativePlayers = {};
     for (const [key, source] of Object.entries(audioSources)) {
       try {
-        nativePlayers[key] = createAudioPlayer(source);
+        const player = createAudioPlayer(source);
+        player.volume = 1.0;
+        nativePlayers[key] = player;
       } catch (e) {
         console.error(`Failed to create player for ${key}:`, e);
       }
@@ -202,7 +204,7 @@ export const audioActor = fromCallback<AudioEvent>(({ receive }) => {
         audio.setMuted(event.muted);
         break;
       case "PLAY_TONE":
-        audio.playTone(event.freq, event.duration ?? 0.1, event.volume ?? 0.3);
+        audio.playTone(event.freq, event.duration ?? 0.1, event.volume ?? 1.0);
         break;
       case "PLAY_DOWN":
         audio.playDown();
