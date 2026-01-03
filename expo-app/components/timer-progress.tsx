@@ -1,5 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import Svg, { Circle } from "react-native-svg";
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 interface TimerProgressProps {
   size: number;
@@ -21,35 +28,46 @@ export function TimerProgress({
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
-  const [smoothProgress, setSmoothProgress] = useState(1);
+  const progress = useSharedValue(1);
   const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isActive) {
-      setSmoothProgress(1);
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       return;
     }
 
     if (!(timerStartedAt && timerDuration)) {
-      setSmoothProgress(1);
+      progress.value = 1;
       return;
     }
 
     const animate = () => {
       const elapsed = Date.now() - timerStartedAt;
       const remaining = Math.max(0, timerDuration - elapsed);
-      setSmoothProgress(remaining / timerDuration);
+      const newProgress = remaining / timerDuration;
+
+      progress.value = newProgress;
+
       if (remaining > 0) animationRef.current = requestAnimationFrame(animate);
     };
 
     animationRef.current = requestAnimationFrame(animate);
+
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [isActive, timerStartedAt, timerDuration]);
+  }, [isActive, timerStartedAt, timerDuration, progress]);
 
-  const strokeDashoffset = circumference - smoothProgress * circumference;
+  useEffect(() => {
+    if (!isActive && progress.value !== 1) {
+      progress.value = withTiming(1, { duration: 200 });
+    }
+  }, [isActive, progress]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: circumference - progress.value * circumference,
+  }));
 
   return (
     <Svg
@@ -65,14 +83,14 @@ export function TimerProgress({
         stroke="#18181b"
         strokeWidth={strokeWidth}
       />
-      <Circle
+      <AnimatedCircle
+        animatedProps={animatedProps}
         cx={size / 2}
         cy={size / 2}
         fill={isActive ? "#09090b" : "transparent"}
         r={radius}
         stroke={strokeColor}
         strokeDasharray={circumference}
-        strokeDashoffset={strokeDashoffset}
         strokeLinecap="round"
         strokeWidth={strokeWidth}
       />
