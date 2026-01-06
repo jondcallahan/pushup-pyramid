@@ -1,15 +1,25 @@
 import { fromCallback } from "xstate";
+import { Platform } from "react-native";
+import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 
 /**
  * Wake Lock Actor
  * Automatically acquires wake lock when invoked (entering active state)
  * and releases it when the parent state exits.
  *
- * Uses the Screen Wake Lock API when available (web browsers).
- * On React Native, this would need to be replaced with expo-keep-awake.
+ * Uses expo-keep-awake on native platforms.
+ * Uses the Screen Wake Lock API on web browsers.
  */
 export const wakeLockActor = fromCallback(() => {
-  // Check if we're in a browser environment with wake lock support
+  // Native platforms: use expo-keep-awake
+  if (Platform.OS !== "web") {
+    activateKeepAwakeAsync().catch(() => {});
+    return () => {
+      deactivateKeepAwake();
+    };
+  }
+
+  // Web: use Screen Wake Lock API
   if (typeof navigator === "undefined" || !("wakeLock" in navigator)) {
     return;
   }

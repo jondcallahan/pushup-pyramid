@@ -127,15 +127,19 @@ const audioSources = {
 // Singleton storage for players and reference counting
 let nativePlayers: Record<string, AudioPlayer> | null = null;
 let playerRefCount = 0;
+let audioModeReady: Promise<void> | null = null;
 
 const createNativeAudio = () => {
   let isMuted = false;
 
   // Initialize players once
   if (!nativePlayers) {
-    // Configure audio mode for iOS - allows playback even in silent mode
-    setAudioModeAsync({
+    // Configure audio mode for iOS FIRST - must complete before playing
+    // This sets the AVAudioSession category to .playback which routes to AirPlay/Bluetooth
+    audioModeReady = setAudioModeAsync({
       playsInSilentMode: true,
+      interruptionMode: "mixWithOthers",
+      allowsRecording: false,
     }).catch((e) => console.error("Failed to set audio mode:", e));
 
     nativePlayers = {};
@@ -149,17 +153,21 @@ const createNativeAudio = () => {
   }
   playerRefCount++;
 
-  const playSound = (key: keyof typeof audioSources) => {
+  const playSound = async (key: keyof typeof audioSources) => {
     if (isMuted) {
       return;
     }
     try {
+      // Wait for audio mode to be configured before first play
+      // This ensures AirPlay/Bluetooth routing is active
+      if (audioModeReady) {
+        await audioModeReady;
+        audioModeReady = null; // Only wait once
+      }
       const player = nativePlayers?.[key];
       if (player) {
-        // Seek to start and play (allows rapid re-triggering)
-        // Note: seekTo returns a promise, but we want to play immediately
-        // chaining it handles potential async seek behavior better than sync call
-        player.seekTo(0).then(() => player.play());
+        await player.seekTo(0);
+        player.play();
       }
     } catch (e) {
       console.error("Audio error", e);

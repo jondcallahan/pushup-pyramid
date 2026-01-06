@@ -6,6 +6,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "ios:dev": "APP_VARIANT=development expo prebuild --platform ios && APP_VARIANT=development expo run:ios --device",
+    "ios:dev:release": "APP_VARIANT=development expo prebuild --platform ios && APP_VARIANT=development expo run:ios --configuration Release --device",
+    "clean:ios": "rm -rf ios && expo prebuild --platform ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -43,6 +46,7 @@
     "autoprefixer": "^10.4.23",
     "babel-preset-expo": "^54.0.9",
     "postcss": "^8.5.6",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.19",
     "typescript": "~5.9.2"
   },
