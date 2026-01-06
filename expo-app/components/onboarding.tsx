@@ -125,17 +125,26 @@ function Dot({ active }: { active: boolean }) {
   );
 }
 
-function PyramidBar({ height, active }: { height: number; active: boolean }) {
+function PyramidBar({
+  height,
+  fillProgress,
+}: {
+  height: number;
+  fillProgress: number;
+}) {
   const maxHeight = 60;
-  const targetHeight = active ? (height / 5) * maxHeight : 12;
+  const targetHeight = (height / 5) * maxHeight;
+  const currentHeight = targetHeight * fillProgress;
 
   const animatedStyle = useAnimatedStyle(() => ({
-    height: withSpring(targetHeight, {
-      damping: 8,
-      stiffness: 100,
-      mass: 0.5,
+    height: withSpring(Math.max(4, currentHeight), {
+      damping: 20,
+      stiffness: 150,
     }),
-    opacity: withSpring(active ? 1 : 0.3, { damping: 15, stiffness: 120 }),
+    opacity: withSpring(fillProgress > 0 ? 1 : 0.3, {
+      damping: 15,
+      stiffness: 120,
+    }),
   }));
 
   return (
@@ -146,18 +155,31 @@ function PyramidBar({ height, active }: { height: number; active: boolean }) {
   );
 }
 
-function PyramidVisual({ slideIndex }: { slideIndex: number }) {
+function PyramidVisual({
+  slideIndex,
+  totalSlides,
+}: {
+  slideIndex: number;
+  totalSlides: number;
+}) {
   const bars = [1, 2, 3, 4, 5, 4, 3, 2, 1];
-  const active = slideIndex % 2 === 1; // Bounce up on slides 1 and 3
+  const fillProgress = slideIndex / (totalSlides - 1);
 
   return (
     <View className="h-16 w-56 flex-row items-end justify-center gap-1">
       {bars.map((height, idx) => (
-        <PyramidBar active={active} height={height} key={idx} />
+        <PyramidBar fillProgress={fillProgress} height={height} key={idx} />
       ))}
     </View>
   );
 }
+
+const HAPTIC_PATTERNS: Haptics.ImpactFeedbackStyle[] = [
+  Haptics.ImpactFeedbackStyle.Light,
+  Haptics.ImpactFeedbackStyle.Medium,
+  Haptics.ImpactFeedbackStyle.Rigid,
+  Haptics.ImpactFeedbackStyle.Heavy,
+];
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const { width } = useWindowDimensions();
@@ -169,7 +191,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const offsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(offsetX / width);
     if (index !== activeIndex) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      Haptics.impactAsync(HAPTIC_PATTERNS[index % HAPTIC_PATTERNS.length]);
     }
     setActiveIndex(index);
   };
@@ -221,7 +243,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
       {/* Pyramid visual */}
       <View className="items-center pb-6">
-        <PyramidVisual slideIndex={activeIndex} />
+        <PyramidVisual slideIndex={activeIndex} totalSlides={slides.length} />
       </View>
 
       {/* Bottom controls */}
