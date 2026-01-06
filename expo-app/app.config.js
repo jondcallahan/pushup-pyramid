@@ -3,7 +3,7 @@ const IS_DEV = process.env.APP_VARIANT === 'development';
 module.exports = {
   name: IS_DEV ? "Pyramid Push (Dev)" : "Pyramid Push",
   slug: "pyramid-push",
-  version: "1.0.0",
+  version: "1.0.1",
   orientation: "portrait",
   icon: IS_DEV ? "./assets/icon-dev-1024.png" : "./assets/icon-1024.png",
   userInterfaceStyle: "dark",

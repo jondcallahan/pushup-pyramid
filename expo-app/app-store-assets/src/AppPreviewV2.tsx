@@ -2,11 +2,15 @@ import { Trophy } from "@phosphor-icons/react";
 import type React from "react";
 import {
   AbsoluteFill,
+  Audio,
   interpolate,
   spring,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+
+const lofiBeats = staticFile("lofi-beats.mp4");
 
 const COLORS = {
   bg: "#09090b",
@@ -236,6 +240,7 @@ export const AppPreviewV2: React.FC = () => {
         padding: 40,
       }}
     >
+      <Audio src={lofiBeats} volume={0.75} />
       {scene === "intro" ? (
         <AbsoluteFill
           style={{
